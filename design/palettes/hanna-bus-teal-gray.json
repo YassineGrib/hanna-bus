@@ -1,0 +1,103 @@
+{
+  "$description": "Hanna Bus palette. Base is palette 7 'Teal/Gray' (Minimal, Calm, Professional) from the 10 Modern UI Color Palettes sheet. Derived tokens are marked.",
+  "palette": {
+    "teal-gray-900": {
+      "$value": "#263238",
+      "$type": "color"
+    },
+    "teal-gray-700": {
+      "$value": "#455A64",
+      "$type": "color"
+    },
+    "teal-300": {
+      "$value": "#80CBC4",
+      "$type": "color"
+    },
+    "gray-200": {
+      "$value": "#CFD8DC",
+      "$type": "color"
+    },
+    "gray-50": {
+      "$value": "#ECEFF1",
+      "$type": "color"
+    }
+  },
+  "derived": {
+    "text-muted": {
+      "$value": "#546E7A",
+      "$type": "color",
+      "$description": "Derived. Body text on gray-50 and white, 4.5:1 or more."
+    },
+    "title-soft": {
+      "$value": "#607D8B",
+      "$type": "color",
+      "$description": "Derived. First title line, large text only, 3:1 or more."
+    },
+    "white": {
+      "$value": "#FFFFFF",
+      "$type": "color"
+    },
+    "destructive": {
+      "$value": "#C62828",
+      "$type": "color",
+      "$description": "Derived destructive red (WCAG AA >= 5.6:1 with white)."
+    },
+    "destructive-surface": {
+      "$value": "#FDF2F2",
+      "$type": "color",
+      "$description": "Derived soft tint for destructive/urgent containers."
+    },
+    "destructive-border": {
+      "$value": "#F5C6C6",
+      "$type": "color",
+      "$description": "Derived full hairline border for destructive/urgent containers."
+    }
+  },
+  "semantic": {
+    "background": {
+      "$value": "{palette.gray-50}"
+    },
+    "surface": {
+      "$value": "{derived.white}"
+    },
+    "border": {
+      "$value": "{palette.gray-200}"
+    },
+    "text": {
+      "$value": "{palette.teal-gray-900}"
+    },
+    "text-muted": {
+      "$value": "{derived.text-muted}"
+    },
+    "title-soft": {
+      "$value": "{derived.title-soft}"
+    },
+    "action-primary": {
+      "$value": "{palette.teal-gray-700}"
+    },
+    "on-primary": {
+      "$value": "{derived.white}"
+    },
+    "link": {
+      "$value": "{palette.teal-gray-700}"
+    },
+    "accent": {
+      "$value": "{palette.teal-300}"
+    },
+    "icon": {
+      "$value": "{palette.teal-gray-900}"
+    },
+    "action-destructive": {
+      "$value": "{derived.destructive}"
+    },
+    "on-destructive": {
+      "$value": "{derived.white}"
+    },
+    "destructive-surface": {
+      "$value": "{derived.destructive-surface}"
+    },
+    "destructive-border": {
+      "$value": "{derived.destructive-border}"
+    }
+  }
+}

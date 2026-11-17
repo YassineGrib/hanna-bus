@@ -1,0 +1,108 @@
+{
+  "$description": "Hanna Bus palette. Base is palette 6 'Mustard' (Bold, Modern, Playful) from the 10 Modern UI Color Palettes sheet. Derived tokens are marked.",
+  "palette": {
+    "charcoal-900": {
+      "$value": "#2B2B2B",
+      "$type": "color"
+    },
+    "mustard-600": {
+      "$value": "#D4A017",
+      "$type": "color"
+    },
+    "mustard-400": {
+      "$value": "#F0C94C",
+      "$type": "color"
+    },
+    "mustard-100": {
+      "$value": "#F7E7B5",
+      "$type": "color"
+    },
+    "cream-50": {
+      "$value": "#FFFDF5",
+      "$type": "color"
+    }
+  },
+  "derived": {
+    "text-muted": {
+      "$value": "#5E5E5E",
+      "$type": "color",
+      "$description": "Derived. Body text on cream and white, 4.5:1 or more."
+    },
+    "title-soft": {
+      "$value": "#8C8C8C",
+      "$type": "color",
+      "$description": "Derived. First title line, large text only, 3:1 or more."
+    },
+    "link": {
+      "$value": "#7A5A00",
+      "$type": "color",
+      "$description": "Derived dark mustard. Mustard-600 fails as text on light surfaces."
+    },
+    "white": {
+      "$value": "#FFFFFF",
+      "$type": "color"
+    },
+    "destructive": {
+      "$value": "#C62828",
+      "$type": "color",
+      "$description": "Derived destructive red (WCAG AA >= 5.6:1 with white)."
+    },
+    "destructive-surface": {
+      "$value": "#FDF2F2",
+      "$type": "color",
+      "$description": "Derived soft tint for destructive/urgent containers."
+    },
+    "destructive-border": {
+      "$value": "#F5C6C6",
+      "$type": "color",
+      "$description": "Derived full hairline border for destructive/urgent containers."
+    }
+  },
+  "semantic": {
+    "background": {
+      "$value": "{palette.cream-50}"
+    },
+    "surface": {
+      "$value": "{derived.white}"
+    },
+    "border": {
+      "$value": "{palette.mustard-100}"
+    },
+    "text": {
+      "$value": "{palette.charcoal-900}"
+    },
+    "text-muted": {
+      "$value": "{derived.text-muted}"
+    },
+    "title-soft": {
+      "$value": "{derived.title-soft}"
+    },
+    "action-primary": {
+      "$value": "{palette.mustard-600}"
+    },
+    "on-primary": {
+      "$value": "{palette.charcoal-900}"
+    },
+    "link": {
+      "$value": "{derived.link}"
+    },
+    "accent": {
+      "$value": "{palette.mustard-400}"
+    },
+    "icon": {
+      "$value": "{palette.charcoal-900}"
+    },
+    "action-destructive": {
+      "$value": "{derived.destructive}"
+    },
+    "on-destructive": {
+      "$value": "{derived.white}"
+    },
+    "destructive-surface": {
+      "$value": "{derived.destructive-surface}"
+    },
+    "destructive-border": {
+      "$value": "{derived.destructive-border}"
+    }
+  }
+}
