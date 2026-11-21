@@ -262,6 +262,70 @@ class AppStrings {
         'Ecrivez un message rapide au chauffeur ou coordinateur...',
       );
 
+  // Driver Messages Thread (Feature addition)
+  String get driverThreadTitle =>
+      tr('Driver Chat', 'محادثة السائق', 'Discussion Chauffeur');
+  String get driverSubtitle =>
+      tr('Bus Driver', 'سائق الحافلة', 'Chauffeur du bus');
+  String get messageDriverAction => tr('Message', 'مراسلة', 'Message');
+  String get openDriverThread => tr(
+    'Open Driver Thread',
+    'فتح محادثة السائق',
+    'Ouvrir discussion chauffeur',
+  );
+  String get driverConversationCardTitle =>
+      tr('Driver Messages', 'رسائل السائق', 'Messages du chauffeur');
+  String get quickReplyWait => tr(
+    'Please wait for me',
+    'يرجى الانتظار، نحن قادمون',
+    'Veuillez m’attendre',
+  );
+  String get quickReplyAbsent => tr(
+    'My child is absent today',
+    'طفلي غائب اليوم',
+    'Mon enfant est absent aujourd’hui',
+  );
+  String get quickReplyThankYou => tr('Thank you', 'شكرا لك', 'Merci');
+  String get quickReplyAtStop =>
+      tr('We are at the stop', 'نحن في المحطة الآن', 'Nous sommes à l’arrêt');
+  String get typeMessagePlaceholder =>
+      tr('Type a message...', 'اكتب رسالة...', 'Ecrivez un message...');
+  String get emptyThreadTitle =>
+      tr('No messages yet', 'لا توجد رسائل بعد', 'Aucun message');
+  String get emptyThreadSubtitle => tr(
+    'Send a message or use quick replies below to reach the driver.',
+    'أرسل رسالة أو اختر ردًا سريعًا للتواصل مع السائق.',
+    'Envoyez un message ou utilisez une reponse rapide.',
+  );
+
+  String get driverMessagesLoadError => tr(
+    'Could not load messages. Please try again.',
+    'تعذر تحميل الرسائل. حاول مجددًا.',
+    'Impossible de charger les messages. Réessayez.',
+  );
+  String get driverMessageSendError => tr(
+    'Message could not be sent. Please try again.',
+    'تعذر إرسال الرسالة. حاول مجددًا.',
+    'Envoi impossible. Réessayez.',
+  );
+  String get driverMessageTooShort => tr(
+    'Enter at least 3 characters before sending.',
+    'اكتب 3 أحرف على الأقل قبل الإرسال.',
+    'Écrivez au moins 3 caractères.',
+  );
+
+  // Clean Empty State for Active Trip (when no children linked)
+  String get noActiveTripEmptyTitle => tr(
+    'Link your child to follow the bus',
+    'اربط حساب طفلك لمتابعة الحافلة',
+    'Liez votre enfant pour suivre le bus',
+  );
+  String get noActiveTripEmptySubtitle => tr(
+    'Add your child using their student code to follow the bus in real time.',
+    'أضف طفلك باستخدام رمز الطالب لمتابعة الحافلة مباشرة.',
+    'Ajoutez votre enfant avec son code élève pour suivre le bus en direct.',
+  );
+
   // Tracking & Analytics (Module 05)
   String get liveTrackingTitle => tr('Live Bus Tracking', 'التتبع المباشر للحافلة', 'Suivi bus en direct');
   String get historyTab => tr('History', 'السجل', 'Historique');

@@ -10,6 +10,7 @@ import '../../../core/widgets/hanna_badge.dart';
 import '../../../core/widgets/hanna_button.dart';
 import '../../../core/widgets/hanna_card.dart';
 import '../../../core/widgets/hanna_hero_card.dart';
+import '../../profile/screens/add_child_screen.dart';
 import 'notifications_screen.dart';
 import 'quick_qr_pass_screen.dart';
 import 'updates_support_screen.dart';
@@ -77,9 +78,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             if (state.children.isNotEmpty) ...[
               _buildChildSwitcherStrip(context, state, activeChild, t),
               const SizedBox(height: 8),
+              _buildPeriodToggle(context, s, t),
+              const SizedBox(height: 12),
             ],
-            _buildPeriodToggle(context, s, t),
-            const SizedBox(height: 12),
             HannaMotionEntrance(
               withScale: true,
               child: _buildLiveHeroCard(context, s, t, activeChild, trip),
@@ -302,29 +303,80 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     ChildProfile? child,
     ActiveTripData? trip,
   ) {
-    final eta = child?.isAbsentToday == true
-        ? 0
-        : (_isMorning ? (trip?.etaMinutes ?? child?.etaMinutes ?? 6) : 14);
-    final busNo = child?.busNumber ?? trip?.busNumber ?? '04';
-    final progress = child?.isAbsentToday == true
-        ? 0.0
-        : (_isMorning ? (trip?.progress ?? child?.progress ?? 0.68) : 0.25);
-    final stopName = child?.stopName ?? trip?.currentStreet ?? 'Hydra North';
-    final windowTime = _isMorning ? (child?.stopTime ?? '07:25') : (child?.returnTime ?? '15:30');
+    if (child == null || trip == null) {
+      return HannaCard(
+        key: const ValueKey('home-empty-state-card'),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: t.heroAccent,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(LucideIcons.bus, size: 24, color: t.text),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              s.noActiveTripEmptyTitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              s.noActiveTripEmptySubtitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                color: t.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            HannaButton(
+              key: const ValueKey('home-link-child-btn'),
+              label: s.linkChildBtn,
+              icon: LucideIcons.plus,
+              compact: true,
+              onPressed: () {
+                Navigator.of(context).push(
+                  HannaMotion.route(const AddChildScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }
 
-    final etaDisplay = child?.isAbsentToday == true
+    final eta = child.isAbsentToday
+        ? 0
+        : (_isMorning ? (trip.etaMinutes) : 14);
+    final busNo = child.busNumber;
+    final progress = child.isAbsentToday
+        ? 0.0
+        : (_isMorning ? (trip.progress) : 0.25);
+    final stopName = child.stopName;
+    final windowTime = _isMorning ? child.stopTime : child.returnTime;
+
+    final etaDisplay = child.isAbsentToday
         ? s.transitLabel('absent')
         : (s.isArabic ? '$eta دقائق' : '$eta min');
 
     final childName = s.isArabic
-        ? (child != null && child.fullName.contains('Youssef')
+        ? (child.fullName.contains('Youssef')
             ? 'يوسف منصوري'
-            : (child != null && child.fullName.contains('Amina')
+            : (child.fullName.contains('Amina')
                 ? 'أمينة منصوري'
-                : (child != null && child.fullName.contains('Rayan')
+                : (child.fullName.contains('Rayan')
                     ? 'ريان منصوري'
-                    : (child?.fullName ?? 'يوسف م.'))))
-        : (child?.fullName ?? 'Youssef M.');
+                    : child.fullName)))
+        : child.fullName;
 
     return HannaHeroCard(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -341,7 +393,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  trip?.routeName ?? stopName,
+                  trip.routeName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -357,7 +409,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   borderRadius: BorderRadius.circular(HannaRadius.sm),
                 ),
                 child: Text(
-                  child?.studentCode ?? 'HB-304',
+                  child.studentCode,
                   style: HannaTypography.mono(
                     size: 11,
                     color: t.heroAccent,
@@ -377,9 +429,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
           const SizedBox(height: 3),
           Text(
-            child != null
-                ? '$childName: ${s.transitLabel(child.transitStatus)} ($windowTime)'
-                : '$s.activeBusRide ($windowTime)',
+            '$childName: ${s.transitLabel(child.transitStatus)} ($windowTime)',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

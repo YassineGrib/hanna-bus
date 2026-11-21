@@ -8,7 +8,7 @@ import 'models.dart';
 
 class AppStateController extends ChangeNotifier {
   AppStateController({HannaApiClient? apiClient, this.tileProvider})
-      : api = apiClient ?? HannaApiClient();
+    : api = apiClient ?? HannaApiClient();
 
   final HannaApiClient api;
   final TileProvider? tileProvider;
@@ -45,6 +45,7 @@ class AppStateController extends ChangeNotifier {
   List<EmergencyContactItem> _emergencyContacts = DemoSeed.emergencyContacts;
   TransitAlertSettings _alertSettings = const TransitAlertSettings();
   CachedQrPassSnapshot? _cachedQrPass;
+  List<DriverMessageItem> _driverMessages = [];
 
   HannaPalette get palette => _palette;
   Brightness get brightness => _brightness;
@@ -78,15 +79,21 @@ class AppStateController extends ChangeNotifier {
   ActiveTripData? get activeTrip => _activeTrip;
   List<TripHistorySummary> get tripHistory => List.unmodifiable(_tripHistory);
   AttendanceAnalyticsData? get analytics => _analytics;
-  List<SafetyNotificationItem> get notifications => List.unmodifiable(_notifications);
+  List<SafetyNotificationItem> get notifications =>
+      List.unmodifiable(_notifications);
   List<SchoolBulletinItem> get bulletins => List.unmodifiable(_bulletins);
   List<EmergencyContactItem> get emergencyContacts =>
       List.unmodifiable(_emergencyContacts);
   TransitAlertSettings get alertSettings => _alertSettings;
   CachedQrPassSnapshot? get cachedQrPass => _cachedQrPass;
+  List<DriverMessageItem> get driverMessages =>
+      List.unmodifiable(_driverMessages);
 
   int get unreadNotificationsCount =>
       _notifications.where((n) => !n.isRead).length;
+
+  int get unreadDriverMessagesCount =>
+      _driverMessages.where((m) => m.isFromDriver && !m.isRead).length;
 
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
@@ -104,7 +111,8 @@ class AppStateController extends ChangeNotifier {
         childId: prefs.getString(_kQrChildIdKey) ?? 'c-youssef',
         childName: qrName,
         studentCode: prefs.getString(_kQrCodeKey) ?? 'HB-304',
-        schoolName: prefs.getString(_kQrSchoolKey) ?? 'El-Feth International School',
+        schoolName:
+            prefs.getString(_kQrSchoolKey) ?? 'El-Feth International School',
         busNumber: prefs.getString(_kQrBusKey) ?? '04',
         stopName: prefs.getString(_kQrStopKey) ?? 'Hydra North - Stop 04',
         qrPayload: prefs.getString(_kQrPayloadKey) ?? 'HANNA-BUS|HB-304|BUS04',
@@ -137,7 +145,10 @@ class AppStateController extends ChangeNotifier {
     _brightness = next;
     _user = _user?.copyWith(brightness: next);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_kBrightnessKey, next == Brightness.dark ? 'dark' : 'light');
+    await prefs.setString(
+      _kBrightnessKey,
+      next == Brightness.dark ? 'dark' : 'light',
+    );
     notifyListeners();
     if (_isAuthenticated && !_isOfflineDemoMode) {
       try {
@@ -301,9 +312,15 @@ class AppStateController extends ChangeNotifier {
     _isOfflineDemoMode = true;
     _isAuthenticated = true;
     _user = DemoSeed.demoUser.copyWith(
-      email: (email != null && email.isNotEmpty) ? email : DemoSeed.demoUser.email,
-      name: (customName != null && customName.isNotEmpty) ? customName : DemoSeed.demoUser.name,
-      phone: (customPhone != null && customPhone.isNotEmpty) ? customPhone : DemoSeed.demoUser.phone,
+      email: (email != null && email.isNotEmpty)
+          ? email
+          : DemoSeed.demoUser.email,
+      name: (customName != null && customName.isNotEmpty)
+          ? customName
+          : DemoSeed.demoUser.name,
+      phone: (customPhone != null && customPhone.isNotEmpty)
+          ? customPhone
+          : DemoSeed.demoUser.phone,
       palette: _palette,
       brightness: _brightness,
       locale: _locale,
@@ -324,6 +341,9 @@ class AppStateController extends ChangeNotifier {
     _notifications = DemoSeed.notifications(_locale);
     _bulletins = DemoSeed.bulletins(_locale);
     _emergencyContacts = DemoSeed.emergencyContacts;
+    if (_driverMessages.isEmpty) {
+      _driverMessages = DemoSeed.driverMessages(_locale);
+    }
   }
 
   Future<void> _syncUserPreferencesFromServer(ParentUser u) async {
@@ -333,7 +353,10 @@ class AppStateController extends ChangeNotifier {
     api.localeCode = u.locale.languageCode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kPaletteKey, _palette.apiValue);
-    await prefs.setString(_kBrightnessKey, _brightness == Brightness.dark ? 'dark' : 'light');
+    await prefs.setString(
+      _kBrightnessKey,
+      _brightness == Brightness.dark ? 'dark' : 'light',
+    );
     await prefs.setString(_kLocaleKey, _locale.languageCode);
   }
 
@@ -347,7 +370,8 @@ class AppStateController extends ChangeNotifier {
       final kids = await api.getChildren();
       _children = kids;
       if (_children.isNotEmpty) {
-        if (_selectedChildId == null || !_children.any((c) => c.id == _selectedChildId)) {
+        if (_selectedChildId == null ||
+            !_children.any((c) => c.id == _selectedChildId)) {
           _selectedChildId = _children.first.id;
         }
       } else {
@@ -363,7 +387,7 @@ class AppStateController extends ChangeNotifier {
         api.getEmergencyContacts(),
         if (childId != null) api.getAnalytics(childId),
       ]);
-      _activeTrip = results[0] as ActiveTripData;
+      _activeTrip = results[0] as ActiveTripData?;
       _tripHistory = results[1] as List<TripHistorySummary>;
       _notifications = results[2] as List<SafetyNotificationItem>;
       _bulletins = results[3] as List<SchoolBulletinItem>;
@@ -372,6 +396,7 @@ class AppStateController extends ChangeNotifier {
       if (childId != null && results.length > 6) {
         _analytics = results[6] as AttendanceAnalyticsData;
       }
+      await fetchDriverMessages();
       await _cacheQrSnapshotForSelectedChild();
       notifyListeners();
     } on ApiUnreachableException {
@@ -403,7 +428,8 @@ class AppStateController extends ChangeNotifier {
   Future<void> _cacheQrSnapshotForSelectedChild() async {
     final c = selectedChild;
     if (c == null) return;
-    final payload = 'HANNA-BUS|${c.studentCode}|BUS-${c.busNumber}|${c.fullName}';
+    final payload =
+        'HANNA-BUS|${c.studentCode}|BUS-${c.busNumber}|${c.fullName}';
     _cachedQrPass = CachedQrPassSnapshot(
       childId: c.id,
       childName: c.fullName,
@@ -474,12 +500,16 @@ class AppStateController extends ChangeNotifier {
         ? DemoSeed.linkableLina
         : DemoSeed.linkableLina.copyWith(
             studentCode: code,
-            fullName: (fullName != null && fullName.isNotEmpty) ? fullName : 'Student $code',
+            fullName: (fullName != null && fullName.isNotEmpty)
+                ? fullName
+                : 'Student $code',
             schoolName: (schoolName != null && schoolName.isNotEmpty)
                 ? schoolName
                 : 'El-Feth International School',
             grade: (grade != null && grade.isNotEmpty) ? grade : 'Grade 3',
-            busNumber: (busNumber != null && busNumber.isNotEmpty) ? busNumber : '04',
+            busNumber: (busNumber != null && busNumber.isNotEmpty)
+                ? busNumber
+                : '04',
             stopName: (stopName != null && stopName.isNotEmpty)
                 ? stopName
                 : 'Hydra North - Stop 04',
@@ -513,7 +543,9 @@ class AppStateController extends ChangeNotifier {
           'allergies': allergies,
           'dismissal_rule': dismissalRule,
         });
-        _children = _children.map((c) => c.id == existingId ? updated : c).toList();
+        _children = _children
+            .map((c) => c.id == existingId ? updated : c)
+            .toList();
         notifyListeners();
         return updated;
       } on ApiUnreachableException {
@@ -642,7 +674,9 @@ class AppStateController extends ChangeNotifier {
   }
 
   Future<void> markAllNotificationsRead() async {
-    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    _notifications = _notifications
+        .map((n) => n.copyWith(isRead: true))
+        .toList();
     notifyListeners();
     if (!_isOfflineDemoMode) {
       try {
@@ -672,6 +706,80 @@ class AppStateController extends ChangeNotifier {
       }
     }
     return true;
+  }
+
+  Future<bool> fetchDriverMessages() async {
+    if (_isOfflineDemoMode) return true;
+    try {
+      final messages = await api.getSupportMessages();
+      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      _driverMessages = messages;
+      notifyListeners();
+      return true;
+    } catch (_) {
+      // Preserve the conversation on transient errors without inserting demo data.
+      return false;
+    }
+  }
+
+  Future<bool> sendDriverMessage(String messageText) async {
+    final trimmed = messageText.trim();
+    if (trimmed.length < 3) return false;
+    if (!_isOfflineDemoMode) {
+      try {
+        await api.sendSupportMessage(
+          recipientType: 'driver',
+          childId: selectedChild?.id,
+          message: trimmed,
+        );
+      } catch (_) {
+        return false;
+      }
+    }
+    _driverMessages = [
+      ..._driverMessages,
+      DriverMessageItem(
+        id: 'local-${DateTime.now().microsecondsSinceEpoch}',
+        direction: 'parent_to_driver',
+        message: trimmed,
+        createdAt: DateTime.now().toUtc().toIso8601String(),
+      ),
+    ];
+    notifyListeners();
+    if (!_isOfflineDemoMode) await fetchDriverMessages();
+    return true;
+  }
+
+  Future<void> markDriverMessageRead(String id) async {
+    final matching = _driverMessages.where(
+      (m) => m.id == id && m.isFromDriver && !m.isRead,
+    );
+    if (matching.isEmpty) return;
+    if (!_isOfflineDemoMode) {
+      try {
+        await api.markSupportMessageRead(id);
+      } catch (_) {
+        return;
+      }
+    }
+    _driverMessages = _driverMessages
+        .map(
+          (m) => m.id == id
+              ? m.copyWith(readAt: DateTime.now().toUtc().toIso8601String())
+              : m,
+        )
+        .toList();
+    notifyListeners();
+  }
+
+  Future<void> markAllDriverMessagesRead() async {
+    final unreadIds = _driverMessages
+        .where((m) => m.isFromDriver && !m.isRead)
+        .map((m) => m.id)
+        .toList();
+    for (final id in unreadIds) {
+      await markDriverMessageRead(id);
+    }
   }
 
   Future<void> updateProfile({
@@ -728,6 +836,7 @@ class AppStateController extends ChangeNotifier {
     _isAuthenticated = false;
     _isOfflineDemoMode = false;
     _user = null;
+    _driverMessages = [];
     notifyListeners();
   }
 
@@ -748,6 +857,7 @@ class AppStateController extends ChangeNotifier {
     _isAuthenticated = false;
     _isOfflineDemoMode = false;
     _user = null;
+    _driverMessages = [];
     _children = [];
     notifyListeners();
     return true;

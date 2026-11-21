@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -51,6 +49,9 @@ class LiveRouteMap extends StatefulWidget {
   final List<TripStation>? stations;
   final TileProvider? tileProvider;
 
+  /// Optional default tile provider for the application.
+  static TileProvider? defaultTileProvider;
+
   @override
   State<LiveRouteMap> createState() => _LiveRouteMapState();
 }
@@ -71,20 +72,12 @@ class _LiveRouteMapState extends State<LiveRouteMap> {
     super.dispose();
   }
 
-  bool get _isTestEnvironment {
-    if (kIsWeb) {
-      return WidgetsBinding.instance.runtimeType.toString().contains('Test');
-    }
-    return Platform.environment.containsKey('FLUTTER_TEST') ||
-        WidgetsBinding.instance.runtimeType.toString().contains('Test');
-  }
-
   TileProvider _resolveTileProvider(BuildContext context) {
     if (widget.tileProvider != null) return widget.tileProvider!;
     final appState = AppStateScope.maybeOf(context);
     if (appState?.tileProvider != null) return appState!.tileProvider!;
-    if (_isTestEnvironment) {
-      return NonNetworkTileProvider();
+    if (LiveRouteMap.defaultTileProvider != null) {
+      return LiveRouteMap.defaultTileProvider!;
     }
     return NetworkTileProvider();
   }

@@ -512,4 +512,55 @@ abstract final class DemoSeed {
       isUrgent: true,
     ),
   ];
+
+  static List<DriverMessageItem> driverMessages(Locale locale) {
+    final ar = locale.languageCode == 'ar';
+    final fr = locale.languageCode == 'fr';
+    return [
+      DriverMessageItem(
+        id: 'msg-1',
+        direction: 'parent_to_driver',
+        message: ar
+            ? 'صباح الخير عمي أحمد، نحن في المحطة الآن'
+            : (fr
+                ? 'Bonjour M. Ahmed, nous sommes a l arret'
+                : 'Good morning Mr. Ahmed, we are at the stop'),
+        createdAt: '2026-11-21T07:12:00Z',
+        readAt: '2026-11-21T07:13:00Z',
+      ),
+      DriverMessageItem(
+        id: 'msg-2',
+        direction: 'driver_to_parent',
+        message: ar
+            ? 'صباح النور، سأصل خلال 3 دقائق تقريبًا'
+            : (fr
+                ? 'Bonjour, j arrive dans environ 3 minutes'
+                : 'Good morning, arriving in about 3 minutes'),
+        createdAt: '2026-11-21T07:14:00Z',
+        readAt: '2026-11-21T07:15:00Z',
+      ),
+      DriverMessageItem(
+        id: 'msg-3',
+        direction: 'parent_to_driver',
+        message: ar
+            ? 'شكرا لك، يوسف جاهز'
+            : (fr
+                ? 'Merci, Youssef est pret'
+                : 'Thank you, Youssef is ready'),
+        createdAt: '2026-11-21T07:16:00Z',
+        readAt: '2026-11-21T07:17:00Z',
+      ),
+      DriverMessageItem(
+        id: 'msg-4',
+        direction: 'driver_to_parent',
+        message: ar
+            ? 'تم صعود يوسف بسلام وهو جالس في مقعده'
+            : (fr
+                ? 'Youssef est bien monte et assis a sa place'
+                : 'Youssef has safely boarded and is in his seat'),
+        createdAt: '2026-11-21T07:22:00Z',
+        readAt: null,
+      ),
+    ];
+  }
 }

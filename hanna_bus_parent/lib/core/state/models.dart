@@ -818,3 +818,57 @@ class CachedQrPassSnapshot {
   final String stopName;
   final String qrPayload;
 }
+
+class DriverMessageItem {
+  const DriverMessageItem({
+    required this.id,
+    required this.direction,
+    required this.message,
+    required this.createdAt,
+    this.readAt,
+  });
+
+  final String id;
+  final String direction;
+  final String message;
+  final String createdAt;
+  final String? readAt;
+
+  bool get isFromParent => direction == 'parent_to_driver';
+  bool get isFromDriver => direction == 'driver_to_parent';
+  bool get isRead => readAt != null && readAt!.isNotEmpty;
+
+  factory DriverMessageItem.fromJson(Map<String, dynamic> json) {
+    return DriverMessageItem(
+      id: (json['id'] ?? '').toString(),
+      direction: (json['direction'] ?? 'parent_to_driver').toString(),
+      message: (json['message'] ?? '').toString(),
+      createdAt: (json['created_at'] ?? '').toString(),
+      readAt: json['read_at']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'direction': direction,
+        'message': message,
+        'created_at': createdAt,
+        if (readAt != null) 'read_at': readAt,
+      };
+
+  DriverMessageItem copyWith({
+    String? id,
+    String? direction,
+    String? message,
+    String? createdAt,
+    String? readAt,
+  }) {
+    return DriverMessageItem(
+      id: id ?? this.id,
+      direction: direction ?? this.direction,
+      message: message ?? this.message,
+      createdAt: createdAt ?? this.createdAt,
+      readAt: readAt ?? this.readAt,
+    );
+  }
+}

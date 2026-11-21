@@ -73,6 +73,9 @@ void main() {
       expect(find.byType(LiveRouteMap), findsOneWidget);
       expect(find.textContaining('6 min'), findsWidgets);
 
+      // The driver messaging actions make the contact area taller.
+      await tester.ensureVisible(find.text('History'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('History'));
       await tester.pumpAndSettle();
       expect(find.text('Trip History'), findsOneWidget);

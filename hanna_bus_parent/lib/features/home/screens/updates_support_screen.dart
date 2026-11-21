@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/motion/hanna_motion.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/hanna_tokens.dart';
 import '../../../core/theme/hanna_typography.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/hanna_button.dart';
 import '../../../core/widgets/hanna_card.dart';
 import '../../../core/widgets/hanna_header.dart';
 import '../../../core/widgets/hanna_text_field.dart';
+import 'driver_message_thread_screen.dart';
 
 class UpdatesSupportScreen extends StatefulWidget {
   const UpdatesSupportScreen({super.key});
@@ -49,13 +51,18 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
       _error = null;
     });
     final state = AppStateScope.of(context);
-    final ok = await state.sendSupportMessage(
-      recipientType: _recipient,
-      childId: state.selectedChild?.id,
-      message: text,
-    );
+    final ok = _recipient == 'driver'
+        ? await state.sendDriverMessage(text)
+        : await state.sendSupportMessage(
+            recipientType: _recipient,
+            childId: state.selectedChild?.id,
+            message: text,
+          );
     if (!mounted) return;
-    setState(() => _sending = false);
+    setState(() {
+      _sending = false;
+      if (!ok) _error = s.driverMessageSendError;
+    });
 
     if (ok) {
       _messageCtrl.clear();
@@ -89,6 +96,93 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
               children: [
                 HannaHeader(title: s.updatesTitle, showBack: true),
                 const SizedBox(height: HannaSpace.lg),
+                // Driver Messages Thread Entry Card
+                HannaCard(
+                  key: const ValueKey('driver-thread-card'),
+                  padding: const EdgeInsets.all(HannaSpace.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: t.heroAccent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Center(
+                              child: Icon(
+                                LucideIcons.messageSquare,
+                                size: 20,
+                                color: t.text,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        s.driverConversationCardTitle,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ),
+                                    if (state.unreadDriverMessagesCount >
+                                        0) ...[
+                                      const SizedBox(width: 8),
+                                      HannaBadge(
+                                        key: const ValueKey(
+                                          'updates-driver-unread-badge',
+                                        ),
+                                        label:
+                                            '${state.unreadDriverMessagesCount}',
+                                        tone: HannaBadgeTone.destructive,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${state.activeTrip?.driverName ?? state.selectedChild?.driverName ?? "Ahmed Benali"} · ${s.tr("Bus", "حافلة", "Bus")} ${state.activeTrip?.busNumber ?? state.selectedChild?.busNumber ?? "04"}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: t.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: HannaSpace.sm),
+                      HannaButton(
+                        key: const ValueKey('open-driver-thread-btn'),
+                        label: s.openDriverThread,
+                        icon: LucideIcons.messageCircle,
+                        compact: true,
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            HannaMotion.route(
+                              const DriverMessageThreadScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: HannaSpace.md),
                 ...state.bulletins.map((item) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: HannaSpace.sm),
@@ -96,8 +190,10 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.spaceBetween,
                             children: [
                               HannaBadge(
                                 label: item.tag.toUpperCase(),
@@ -108,18 +204,23 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
                               ),
                               Text(
                                 item.publishedAt.split('T').first,
-                                style: HannaTypography.mono(size: 12, color: t.titleSoft),
+                                style: HannaTypography.mono(
+                                  size: 12,
+                                  color: t.titleSoft,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: HannaSpace.sm),
-                          Text(item.title, style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            item.title,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           const SizedBox(height: 6),
                           Text(
                             item.body,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: t.textMuted,
-                                ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: t.textMuted),
                           ),
                         ],
                       ),
@@ -132,7 +233,11 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        s.tr('Direct Contact Dispatch', 'رسالة سريعة للنقل', 'Contact transport direct'),
+                        s.tr(
+                          'Direct Contact Dispatch',
+                          'رسالة سريعة للنقل',
+                          'Contact transport direct',
+                        ),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: HannaSpace.sm),
@@ -144,7 +249,8 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
                               compact: true,
                               selected: _recipient == 'driver',
                               variant: HannaButtonVariant.secondary,
-                              onPressed: () => setState(() => _recipient = 'driver'),
+                              onPressed: () =>
+                                  setState(() => _recipient = 'driver'),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -154,7 +260,8 @@ class _UpdatesSupportScreenState extends State<UpdatesSupportScreen> {
                               compact: true,
                               selected: _recipient == 'coordinator',
                               variant: HannaButtonVariant.secondary,
-                              onPressed: () => setState(() => _recipient = 'coordinator'),
+                              onPressed: () =>
+                                  setState(() => _recipient = 'coordinator'),
                             ),
                           ),
                         ],
