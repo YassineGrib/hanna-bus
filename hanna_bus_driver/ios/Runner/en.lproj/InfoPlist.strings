@@ -1,0 +1,2 @@
+"NSCameraUsageDescription" = "Scan student QR passes to record boarding and alighting.";
+"NSLocationWhenInUseUsageDescription" = "Share bus location with families during an active trip.";

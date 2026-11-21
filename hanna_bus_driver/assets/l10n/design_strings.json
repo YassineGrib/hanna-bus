@@ -1,0 +1,200 @@
+{
+  "auth": {
+    "en": {
+      "welcome_t1": "Welcome to",
+      "welcome_t2": "Hanna Bus Captain",
+      "welcome_sub": "School transit dispatch & student safety onboard.",
+      "cont": "Continue",
+      "in_t1": "Welcome back",
+      "in_t2": "Captain!",
+      "in_sub": "Sign in to access your assigned bus and daily route.",
+      "email": "Driver Email",
+      "password": "Password",
+      "forgot": "Forgot password?",
+      "sign_in": "Sign in",
+      "rc_t1": "Forgot",
+      "rc_t2": "your password?",
+      "back_link": "Back to sign in"
+    },
+    "ar": {
+      "welcome_t1": "مرحبًا بك في",
+      "welcome_t2": "كابتن هَنّا باص",
+      "welcome_sub": "إدارة خطوط النقل المدرسي وتأمين صعود ونزول الطلاب.",
+      "cont": "متابعة",
+      "in_t1": "مرحبًا بعودتك",
+      "in_t2": "كابتن الحافلة!",
+      "in_sub": "سجّل الدخول لبدء جدول رحلتك اليومية ومتابعة حضور الطلاب.",
+      "email": "بريد السائق",
+      "password": "كلمة المرور",
+      "forgot": "نسيت كلمة المرور؟",
+      "sign_in": "تسجيل الدخول",
+      "rc_t1": "هل نسيت",
+      "rc_t2": "كلمة المرور؟",
+      "back_link": "العودة لتسجيل الدخول"
+    }
+  },
+  "home": {
+    "en": {
+      "shift_am": "Morning Route",
+      "shift_pm": "Return Route",
+      "nav_home": "Home",
+      "nav_roster": "Students",
+      "nav_nav": "Navigation",
+      "nav_prof": "Profile",
+      "sec_actions": "Quick Driver Tools",
+      "act_qr": "Scan QR",
+      "act_delay": "Delay Alert",
+      "sec_stops": "Upcoming Stops Today",
+      "qr_title": "Hands Free QR Scanner",
+      "delay_title": "Broadcast Route Delay",
+      "delay_pills_title": "Select Estimated Delay",
+      "cancel": "Cancel",
+      "safe_proto": "MANDATORY SAFETY PROTOCOL",
+      "safe_title": "Walk Aisle to Rear Seats",
+      "safe_sub": "Physically walk to the back of the bus to ensure no sleeping child or forgotten bag remains onboard."
+    },
+    "ar": {
+      "shift_am": "رحلة الصباح",
+      "shift_pm": "رحلة العودة",
+      "nav_home": "الرئيسية",
+      "nav_roster": "الطلاب",
+      "nav_nav": "الملاحة",
+      "nav_prof": "حسابي",
+      "sec_actions": "إجراءات السائق السريعة",
+      "act_qr": "مسح QR",
+      "act_delay": "تنبيه تأخير",
+      "sec_stops": "محطات اليوم بالترتيب",
+      "qr_title": "ماسح الصعود التلقائي (QR)",
+      "delay_title": "إرسال تنبيه تأخير للرحلة",
+      "delay_pills_title": "حدد مدة التأخير المتوقعة",
+      "cancel": "إلغاء",
+      "safe_proto": "بروتوكول السلامة الإلزامي",
+      "safe_title": "تفقد المقاعد حتى نهاية الحافلة",
+      "safe_sub": "يرجى المرور بين المقاعد للتأكد من نزول كامل الأطفال وعدم بقاء أي تلميذ نائم أو متعلقات منسية."
+    }
+  },
+  "children": {
+    "en": {
+      "page_title": "Students Manifest",
+      "search_ph": "Search student, stop or seat...",
+      "by_stops_title": "Roster by Stops"
+    },
+    "ar": {
+      "page_title": "قائمة ركاب الحافلة",
+      "search_ph": "ابحث بالاسم، المحطة، أو المقعد...",
+      "by_stops_title": "قائمة الطلاب حسب المحطات"
+    }
+  },
+  "navigation": {
+    "en": {
+      "page_title": "Live Route Navigation",
+      "btn_arrived": "Arrived at Stop"
+    },
+    "ar": {
+      "page_title": "الملاحة الحية للمسار",
+      "btn_arrived": "وصلت للمحطة"
+    }
+  },
+  "fleet": {
+    "en": {
+      "days": [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu"
+      ],
+      "f_title": "Bus Rotation",
+      "f_active": "CURRENT BUS",
+      "f_avail": "Available buses",
+      "f_week": "This week's rotation",
+      "f_note": "A pre trip inspection is required after switching",
+      "s_title": "Emergency SOS",
+      "s_hold": "HOLD 3 SEC",
+      "s_what": "What happened?",
+      "s_types": [
+        [
+          "Accident",
+          "warning-circle"
+        ],
+        [
+          "Breakdown",
+          "bus"
+        ],
+        [
+          "Medical",
+          "first-aid"
+        ],
+        [
+          "Security",
+          "shield-check"
+        ]
+      ],
+      "s_call": "Call now",
+      "s_calls": [
+        [
+          "14",
+          "Civil Protection"
+        ],
+        [
+          "17",
+          "Police"
+        ],
+        [
+          "School",
+          "Coordinator"
+        ]
+      ]
+    },
+    "ar": {
+      "days": [
+        "الأحد",
+        "الإثنين",
+        "الثلاثاء",
+        "الأربعاء",
+        "الخميس"
+      ],
+      "f_title": "تدوير الحافلات",
+      "f_active": "الحافلة الحالية",
+      "f_avail": "الحافلات المتاحة",
+      "f_week": "تدوير هذا الأسبوع",
+      "f_note": "يلزم فحص ما قبل الرحلة بعد التبديل",
+      "s_title": "نداء الطوارئ SOS",
+      "s_hold": "اضغط 3 ثوانٍ",
+      "s_what": "ماذا حدث؟",
+      "s_types": [
+        [
+          "حادث",
+          "warning-circle"
+        ],
+        [
+          "عطل",
+          "bus"
+        ],
+        [
+          "طبي",
+          "first-aid"
+        ],
+        [
+          "أمني",
+          "shield-check"
+        ]
+      ],
+      "s_call": "اتصل الآن",
+      "s_calls": [
+        [
+          "14",
+          "الحماية المدنية"
+        ],
+        [
+          "17",
+          "الشرطة"
+        ],
+        [
+          "المدرسة",
+          "المنسّق"
+        ]
+      ]
+    }
+  }
+}
