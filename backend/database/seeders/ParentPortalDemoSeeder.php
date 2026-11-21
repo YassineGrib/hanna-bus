@@ -20,6 +20,7 @@ class ParentPortalDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call(AdminDemoSeeder::class);
         $parent = User::updateOrCreate(
             ['email' => 'k.mansouri@mail.dz'],
             [

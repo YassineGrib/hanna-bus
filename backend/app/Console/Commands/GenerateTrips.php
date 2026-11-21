@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\CarryOverAssignments;
 use App\Support\GenerateDailyTrips;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Attributes\Description;
@@ -9,7 +10,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
-#[Signature('hanna:generate-trips {--date= : Service date (YYYY-MM-DD), defaults to today}')]
+#[Signature('hanna:generate-trips {--date= : Service date (YYYY-MM-DD), defaults to today} {--carry-assignments : Copy assignments from the previous service date}')]
 #[Description('Generate scheduled morning and return trips for assigned buses')]
 class GenerateTrips extends Command
 {
@@ -22,6 +23,10 @@ class GenerateTrips extends Command
             return self::FAILURE;
         }
 
+        if ($this->option('carry-assignments')) {
+            $assignments = app(CarryOverAssignments::class)->handle(CarbonImmutable::createFromFormat('!Y-m-d', $date));
+            $this->info("Created {$assignments['created']} assignments; skipped {$assignments['skipped']} assignments.");
+        }
         $counts = $generate->handle(CarbonImmutable::createFromFormat('!Y-m-d', $date));
         $this->info("Created {$counts['created']} trips; skipped {$counts['skipped']} trips for {$date}.");
 
