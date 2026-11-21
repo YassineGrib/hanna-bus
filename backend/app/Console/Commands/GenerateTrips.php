@@ -30,6 +30,10 @@ class GenerateTrips extends Command
         $counts = $generate->handle(CarbonImmutable::createFromFormat('!Y-m-d', $date));
         $this->info("Created {$counts['created']} trips; skipped {$counts['skipped']} trips for {$date}.");
 
+        foreach ($generate->warnings(CarbonImmutable::createFromFormat('!Y-m-d', $date)) as $warning) {
+            $this->warn($warning);
+        }
+
         return self::SUCCESS;
     }
 }

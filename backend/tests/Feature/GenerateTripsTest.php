@@ -5,8 +5,13 @@ namespace Tests\Feature;
 use App\Models\ActiveTrip;
 use App\Models\Bus;
 use App\Models\BusAssignment;
+use App\Models\Route;
+use App\Models\RouteStation;
 use App\Models\TripStation;
 use App\Models\User;
+use App\Support\GenerateDailyTrips;
+use Carbon\CarbonImmutable;
+use Database\Seeders\ParentPortalDemoSeeder;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -221,6 +226,51 @@ class GenerateTripsTest extends TestCase
         $this->assertFalse($event->isDue($this->app));
         $this->travelTo(today()->setTime(1, 5));
         $this->assertFalse($event->isDue($this->app));
+    }
+
+    public function test_active_route_takes_precedence_with_independent_legacy_fallback(): void
+    {
+        $this->seed(ParentPortalDemoSeeder::class);
+        $route = Route::where('period', 'morning')->firstOrFail();
+        $route->update(['name' => 'New route', 'scheduled_start' => null, 'route_points_json' => []]);
+        Route::where('period', 'return')->update(['is_active' => false]);
+        $legacy = ActiveTrip::where('id', 'trip-04-return')->firstOrFail();
+        $assignment = BusAssignment::where('bus_id', $route->bus_id)->firstOrFail();
+        BusAssignment::create(['bus_id' => $route->bus_id, 'driver_id' => $assignment->driver_id, 'date' => '2026-11-25']);
+        app(GenerateDailyTrips::class)->handle(CarbonImmutable::parse('2026-11-25'));
+        $this->assertDatabaseHas('active_trips', ['id' => 'trip-04-am-20261125', 'route_name' => 'New route', 'scheduled_start' => null]);
+        $this->assertDatabaseHas('active_trips', ['id' => 'trip-04-return-20261125', 'route_name' => $legacy->route_name]);
+        $this->assertSame([], ActiveTrip::findOrFail('trip-04-am-20261125')->route_points_json);
+        $this->assertSame($legacy->route_points_json, ActiveTrip::findOrFail('trip-04-return-20261125')->route_points_json);
+        $this->assertSame([], app(GenerateDailyTrips::class)->warnings(CarbonImmutable::parse('2026-11-25')));
+    }
+
+    public function test_new_bus_routes_generate_both_periods_without_previous_trips(): void
+    {
+        $morning = Route::factory()->create(['is_active' => true, 'scheduled_start' => '07:10',
+            'route_points_json' => [[36.75, 3.05], [36.76, 3.06]]]);
+        $return = Route::factory()->create(['bus_id' => $morning->bus_id, 'period' => 'return',
+            'is_active' => true, 'scheduled_start' => '15:20', 'route_points_json' => null]);
+        foreach ([$morning, $return] as $route) {
+            RouteStation::factory()->count(2)->sequence(['sort_order' => 1], ['sort_order' => 2])
+                ->create(['route_id' => $route->id]);
+        }
+        $driver = User::factory()->create(['role' => 'driver']);
+        BusAssignment::create(['bus_id' => $morning->bus_id, 'driver_id' => $driver->id, 'date' => '2026-11-24']);
+        $this->artisan('hanna:generate-trips', ['--date' => '2026-11-24'])
+            ->expectsOutput('Created 2 trips; skipped 0 trips for 2026-11-24.')->assertSuccessful();
+        foreach ([$morning, $return] as $route) {
+            $trip = ActiveTrip::with('stations')->where('is_morning', $route->period === 'morning')->firstOrFail();
+            $this->assertSame($route->name, $trip->route_name);
+            $this->assertSame($route->route_points_json, $trip->route_points_json);
+            $this->assertSame('2026-11-24 '.$route->scheduled_start.':00', $trip->scheduled_start->toDateTimeString());
+            $this->assertSame($route->stations->pluck('name_en')->all(), $trip->stations->pluck('name_en')->all());
+            $this->assertSame($driver->id, $trip->driver_id);
+            $this->assertSame($morning->bus_id, $trip->bus_id);
+            $this->assertSame('scheduled', $trip->status);
+            $this->assertSame(['upcoming', 'upcoming'], $trip->stations->pluck('status')->all());
+        }
+        $this->assertDatabaseCount('active_trips', 2);
     }
 
     /** @return array{driver: User, bus: Bus, morning: ActiveTrip, return: ActiveTrip} */

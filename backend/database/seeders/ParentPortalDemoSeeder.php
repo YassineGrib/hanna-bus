@@ -7,6 +7,7 @@ use App\Models\Bus;
 use App\Models\BusAssignment;
 use App\Models\Child;
 use App\Models\DriverProfile;
+use App\Models\Route;
 use App\Models\SafetyNotification;
 use App\Models\SchoolBulletin;
 use App\Models\TransitAlertSetting;
@@ -387,6 +388,20 @@ class ParentPortalDemoSeeder extends Seeder
             $copy->scheduled_time = sprintf('15:%02d', 20 + $index * 5);
             $copy->status = 'upcoming';
             $copy->save();
+        }
+
+        foreach ([$trip->fresh('stations'), $return->fresh('stations')] as $source) {
+            $route = Route::updateOrCreate([
+                'bus_id' => $source->bus_id, 'period' => $source->is_morning ? 'morning' : 'return',
+            ], [
+                'name' => $source->route_name, 'scheduled_start' => $source->scheduled_start?->format('H:i:s'),
+                'route_points_json' => $source->route_points_json, 'is_active' => true,
+            ]);
+            foreach ($source->stations as $station) {
+                $route->stations()->updateOrCreate(['sort_order' => $station->sort_order],
+                    $station->only(['name_en', 'name_ar', 'name_fr', 'subtitle_en', 'subtitle_ar',
+                        'subtitle_fr', 'scheduled_time', 'lat', 'lng']));
+            }
         }
     }
 }

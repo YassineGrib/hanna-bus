@@ -11,6 +11,17 @@
     @error('date') <p style="color:#dc2626">{{ $message }}</p> @enderror
     {{ $this->table }}
     <x-filament::section :heading="__('admin.trips')">
+        @if ($routeWarnings)
+            <div role="alert">
+                <p>{{ __('admin.missing_routes') }}</p>
+                <ul>
+                    @foreach ($routeWarnings as $warning)
+                        <li>{{ $warning }}</li>
+                    @endforeach
+                </ul>
+                <a href="{{ \App\Filament\Resources\RouteResource::getUrl('index') }}">{{ __('admin.routes') }}</a>
+            </div>
+        @endif
         <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;text-align:start">
                 <thead>

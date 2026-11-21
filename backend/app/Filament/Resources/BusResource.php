@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\RelationManagers\AssignmentsRelationManager;
 use App\Filament\RelationManagers\InspectionsRelationManager;
+use App\Filament\RelationManagers\RoutesRelationManager;
 use App\Filament\Resources\BusResource\Pages;
 use App\Models\Bus;
 use Filament\Actions\DeleteAction;
@@ -43,7 +44,7 @@ class BusResource extends AdminResource
 
     public static function getRelations(): array
     {
-        return [InspectionsRelationManager::class, AssignmentsRelationManager::class];
+        return [InspectionsRelationManager::class, AssignmentsRelationManager::class, RoutesRelationManager::class];
     }
 
     public static function getPages(): array

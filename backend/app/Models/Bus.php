@@ -33,6 +33,11 @@ class Bus extends Model
         ];
     }
 
+    public function routes(): HasMany
+    {
+        return $this->hasMany(Route::class);
+    }
+
     public function inspections(): HasMany
     {
         return $this->hasMany(BusInspection::class);

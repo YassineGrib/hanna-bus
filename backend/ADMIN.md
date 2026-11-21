@@ -14,7 +14,8 @@ Back office for the Hanna Bus school transport system, built with Filament v5.
 | Dashboard | buses in service, trips en route, students on a bus, open SOS alerts, parents and drivers, today's trips |
 | Daily planning | pick a date, carry over the previous day's assignments, generate that date's trips |
 | Daily assignments | which driver drives which bus on a date (one bus per driver per day) |
-| Buses | fleet, status, inspections and assignments |
+| Buses | fleet, status, inspections, routes and assignments |
+| Routes | morning and return route of each bus with its ordered stations (names in en, ar, fr, time, latitude, longitude); "Duplicate as return route" reverses a morning route |
 | Drivers | driver accounts and profiles |
 | Parents | parent accounts and their children |
 | Students | children, parent link, bus, stop, medical data, QR code |
@@ -22,6 +23,15 @@ Back office for the Hanna Bus school transport system, built with Filament v5.
 | Safety alerts | SOS alerts from drivers, map link, close action |
 | School bulletins | announcements in English, Arabic and French |
 | Support messages | read-only threads between parents and drivers |
+
+## New bus checklist
+
+1. Create the bus in Buses.
+2. Define its morning route in Routes (at least two stations), then use "Duplicate as return route" and review the times.
+3. Assign a driver to it in Daily assignments or Daily planning.
+4. Generate trips. A bus with no route is listed in a warning on Daily planning instead of being skipped silently.
+
+Coordinates: open openstreetmap.org, right click the stop, choose "Show address", and copy latitude and longitude. When the optional route points are empty the apps draw the route from the stations.
 
 ## Daily routine
 

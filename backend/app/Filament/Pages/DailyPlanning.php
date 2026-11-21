@@ -14,6 +14,7 @@ use Filament\Pages\Page;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Validator;
 
 class DailyPlanning extends Page implements HasTable
 {
@@ -89,7 +90,9 @@ class DailyPlanning extends Page implements HasTable
     /** @param array{created: int, skipped: int} $counts */
     private function notifyResult(array $counts): void
     {
-        Notification::make()->title(__('admin.operation_result', $counts))->success()->send();
+        $warnings = app(GenerateDailyTrips::class)->warnings(CarbonImmutable::parse($this->date));
+        Notification::make()->title(__('admin.operation_result', $counts))
+            ->body(implode("\n", $warnings))->status($warnings ? 'warning' : 'success')->send();
         $this->resetTable();
     }
 
@@ -101,6 +104,18 @@ class DailyPlanning extends Page implements HasTable
 
     protected function getViewData(): array
     {
-        return ['trips' => ActiveTrip::with(['driver', 'bus'])->whereDate('service_date', $this->date)->orderBy('scheduled_start')->get()];
+        $validDate = Validator::make(
+            ['date' => $this->date],
+            ['date' => ['required', 'date_format:Y-m-d']],
+        )->passes();
+
+        return [
+            'routeWarnings' => $validDate
+                ? app(GenerateDailyTrips::class)->warnings(CarbonImmutable::parse($this->date))
+                : [],
+            'trips' => ActiveTrip::with(['driver', 'bus'])
+                ->whereDate('service_date', $this->date)
+                ->orderBy('scheduled_start')->get(),
+        ];
     }
 }
