@@ -26,8 +26,9 @@ class LiveRouteMap extends StatefulWidget {
     this.speedKmh = 38,
     this.height = 320,
     this.replayMode = false,
-    this.homeStopLabel = 'Hay El Nasr (07:16)',
-    this.schoolStopLabel = 'El Wiam School (ETA 07:40)',
+    this.homeStopLabel = '',
+    this.schoolStopLabel = '',
+    this.gpsLabel = '',
     this.onRecenter,
     this.location,
     this.routePoints,
@@ -41,8 +42,10 @@ class LiveRouteMap extends StatefulWidget {
   final int speedKmh;
   final double height;
   final bool replayMode;
+  /// Localized overlay labels. An empty label hides its tag.
   final String homeStopLabel;
   final String schoolStopLabel;
+  final String gpsLabel;
   final VoidCallback? onRecenter;
   final TripLocation? location;
   final List<LatLng>? routePoints;
@@ -346,6 +349,7 @@ class _LiveRouteMapState extends State<LiveRouteMap> {
             ),
 
             // Origin Home Stop Tag
+            if (widget.homeStopLabel.isNotEmpty)
             Positioned.directional(
               textDirection: dir,
               start: 14,
@@ -383,6 +387,7 @@ class _LiveRouteMapState extends State<LiveRouteMap> {
             ),
 
             // Destination School Tag
+            if (widget.schoolStopLabel.isNotEmpty)
             Positioned.directional(
               textDirection: dir,
               end: 14,
@@ -420,7 +425,7 @@ class _LiveRouteMapState extends State<LiveRouteMap> {
             ),
 
             // Live GPS Pill
-            if (!widget.replayMode)
+            if (!widget.replayMode && widget.gpsLabel.isNotEmpty)
               Positioned.directional(
                 textDirection: dir,
                 start: 14,
@@ -452,7 +457,7 @@ class _LiveRouteMapState extends State<LiveRouteMap> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'LIVE GPS : 4s ago',
+                        widget.gpsLabel,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,

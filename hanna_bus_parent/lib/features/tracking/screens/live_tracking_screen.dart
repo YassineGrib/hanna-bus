@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/motion/hanna_motion.dart';
 import '../../../core/state/app_state.dart';
+import '../../../core/state/models.dart';
 import '../../../core/theme/hanna_tokens.dart';
 import '../../../core/theme/hanna_typography.dart';
 import '../../../core/widgets/hanna_background.dart';
@@ -283,6 +284,17 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                 routePoints: trip.routePoints,
                 stations: trip.stations,
                 tileProvider: widget.tileProvider,
+                gpsLabel: _gpsLabel(s, trip.location),
+                homeStopLabel: trip.stations.isEmpty
+                    ? ''
+                    : '${trip.stations.first.name} (${trip.stations.first.scheduledTime})',
+                schoolStopLabel: trip.stations.length < 2
+                    ? ''
+                    : s.tr(
+                        '${trip.stations.last.name} (ETA ${trip.stations.last.scheduledTime})',
+                        '${trip.stations.last.name} (الوصول ${trip.stations.last.scheduledTime})',
+                        '${trip.stations.last.name} (arrivée ${trip.stations.last.scheduledTime})',
+                      ),
               ),
               const SizedBox(height: HannaSpace.md),
 
@@ -324,9 +336,11 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            s.isArabic
-                                ? 'الوصول للمدرسة خلال $eta دقائق'
-                                : 'Arriving at School in $eta min',
+                            s.tr(
+                              'Arriving at School in $eta min',
+                              'الوصول للمدرسة خلال $eta دقائق',
+                              'Arrivée à l école dans $eta min',
+                            ),
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   fontWeight: FontWeight.w700,
@@ -335,7 +349,7 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
                           ),
                         ),
                         Text(
-                          '$eta min ETA',
+                          s.tr('$eta min ETA', 'الوصول $eta د', '$eta min ETA'),
                           style: HannaTypography.mono(
                             size: 14,
                             weight: FontWeight.w700,
@@ -654,4 +668,34 @@ class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
       ),
     );
   }
+}
+
+/// Map pill text built from the real age of the last GPS fix (never a fixed "4s ago").
+String _gpsLabel(AppStrings s, TripLocation? location) {
+  final updated = DateTime.tryParse(location?.updatedAt ?? '');
+  if (updated == null) {
+    return s.tr('Estimated position', 'موقع تقديري', 'Position estimée');
+  }
+  final age = DateTime.now().toUtc().difference(updated.toUtc());
+  final seconds = age.inSeconds < 0 ? 0 : age.inSeconds;
+  final minutes = age.inMinutes < 0 ? 0 : age.inMinutes;
+  if (minutes >= 2) {
+    return s.tr(
+      'Last GPS · ${minutes}m ago',
+      'آخر GPS · منذ $minutes د',
+      'Dernier GPS · il y a $minutes min',
+    );
+  }
+  if (seconds < 60) {
+    return s.tr(
+      'LIVE GPS · ${seconds}s ago',
+      'مباشر GPS · منذ $seconds ث',
+      'GPS DIRECT · il y a ${seconds}s',
+    );
+  }
+  return s.tr(
+    'LIVE GPS · 1m ago',
+    'مباشر GPS · منذ 1 د',
+    'GPS DIRECT · il y a 1 min',
+  );
 }
