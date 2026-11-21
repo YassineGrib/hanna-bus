@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import '../theme/hanna_tokens.dart';
+
+class TripLocation {
+  const TripLocation({
+    required this.lat,
+    required this.lng,
+    this.heading,
+    this.updatedAt,
+  });
+
+  final double lat;
+  final double lng;
+  final double? heading;
+  final String? updatedAt;
+
+  static TripLocation? fromJson(dynamic raw) {
+    if (raw is! Map) return null;
+    final json = Map<String, dynamic>.from(raw);
+    final lat = (json['lat'] as num?)?.toDouble();
+    final lng = (json['lng'] as num?)?.toDouble();
+    if (lat == null || lng == null) return null;
+    return TripLocation(
+      lat: lat,
+      lng: lng,
+      heading: (json['heading'] as num?)?.toDouble(),
+      updatedAt: json['updated_at']?.toString(),
+    );
+  }
+}
 
 class LocalizedText {
   const LocalizedText({
@@ -319,6 +348,8 @@ class TripStation {
     required this.scheduledTime,
     required this.subtitle,
     required this.status,
+    this.lat,
+    this.lng,
   });
 
   final int id;
@@ -327,6 +358,8 @@ class TripStation {
   final String scheduledTime;
   final String subtitle;
   final String status; // passed | current | upcoming
+  final double? lat;
+  final double? lng;
 
   factory TripStation.fromJson(Map<String, dynamic> json) {
     return TripStation(
@@ -336,6 +369,8 @@ class TripStation {
       scheduledTime: (json['scheduled_time'] ?? '').toString(),
       subtitle: (json['subtitle'] ?? '').toString(),
       status: (json['status'] ?? 'upcoming').toString(),
+      lat: (json['lat'] as num?)?.toDouble(),
+      lng: (json['lng'] as num?)?.toDouble(),
     );
   }
 }
@@ -359,6 +394,8 @@ class ActiveTripData {
     required this.currentStreet,
     required this.status,
     required this.stations,
+    this.location,
+    this.routePoints = const [],
   });
 
   final String id;
@@ -378,12 +415,29 @@ class ActiveTripData {
   final String currentStreet;
   final String status;
   final List<TripStation> stations;
+  final TripLocation? location;
+  final List<LatLng> routePoints;
 
   factory ActiveTripData.fromJson(Map<String, dynamic> json) {
     final list = (json['stations'] as List? ?? [])
         .whereType<Map>()
         .map((e) => TripStation.fromJson(Map<String, dynamic>.from(e)))
         .toList();
+
+    final loc = TripLocation.fromJson(json['location']);
+
+    final rawRoute = json['route_points'] as List? ?? [];
+    final pts = <LatLng>[];
+    for (final item in rawRoute) {
+      if (item is List && item.length >= 2) {
+        final lat = (item[0] as num?)?.toDouble();
+        final lng = (item[1] as num?)?.toDouble();
+        if (lat != null && lng != null) {
+          pts.add(LatLng(lat, lng));
+        }
+      }
+    }
+
     return ActiveTripData(
       id: (json['id'] ?? 'trip-04-am').toString(),
       busNumber: (json['bus_number'] ?? '04').toString(),
@@ -402,6 +456,8 @@ class ActiveTripData {
       currentStreet: (json['current_street'] ?? 'Rue Didouche Mourad').toString(),
       status: (json['status'] ?? 'en_route').toString(),
       stations: list,
+      location: loc,
+      routePoints: pts,
     );
   }
 }
@@ -430,6 +486,7 @@ class TripHistorySummary {
       Offset(0.55, 0.45),
       Offset(0.84, 0.22),
     ],
+    this.routePoints = const [],
     this.qrAudit = const [],
   });
 
@@ -450,6 +507,7 @@ class TripHistorySummary {
   final double driverRating;
   final String vehicleModel;
   final List<Offset> waypoints;
+  final List<LatLng> routePoints;
   final List<Map<String, dynamic>> qrAudit;
 
   factory TripHistorySummary.fromJson(Map<String, dynamic> json) {
@@ -461,6 +519,17 @@ class TripHistorySummary {
           (item[0] as num).toDouble(),
           (item[1] as num).toDouble(),
         ));
+      }
+    }
+    final rawRoute = json['route_points'] as List? ?? [];
+    final routePts = <LatLng>[];
+    for (final item in rawRoute) {
+      if (item is List && item.length >= 2) {
+        final lat = (item[0] as num?)?.toDouble();
+        final lng = (item[1] as num?)?.toDouble();
+        if (lat != null && lng != null) {
+          routePts.add(LatLng(lat, lng));
+        }
       }
     }
     final rawQr = (json['qr_audit'] as List? ?? [])
@@ -493,6 +562,7 @@ class TripHistorySummary {
               Offset(0.62, 0.36),
               Offset(0.84, 0.22),
             ],
+      routePoints: routePts,
       qrAudit: rawQr,
     );
   }

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/motion/hanna_motion.dart';
@@ -9,15 +11,42 @@ import '../../../core/widgets/hanna_background.dart';
 import '../../../core/widgets/hanna_button.dart';
 import '../../../core/widgets/hanna_header.dart';
 import '../../settings/screens/notification_prefs_screen.dart';
-import '../widgets/stylized_route_map.dart';
+import '../widgets/live_route_map.dart';
 import 'attendance_analytics_screen.dart';
 import 'corridor_timeline_screen.dart';
 import 'live_boarding_alerts_screen.dart';
 import 'trip_history_screen.dart';
 
-class LiveTrackingScreen extends StatelessWidget {
-  const LiveTrackingScreen({super.key, this.onBack});
+class LiveTrackingScreen extends StatefulWidget {
+  const LiveTrackingScreen({super.key, this.onBack, this.tileProvider});
   final VoidCallback? onBack;
+  final TileProvider? tileProvider;
+
+  @override
+  State<LiveTrackingScreen> createState() => _LiveTrackingScreenState();
+}
+
+class _LiveTrackingScreenState extends State<LiveTrackingScreen> {
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+      final state = AppStateScope.maybeOf(context);
+      if (state != null && !state.isOfflineDemoMode) {
+        state.refreshActiveTrip();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +75,8 @@ class LiveTrackingScreen extends StatelessWidget {
               // Header (y=44 in FigCraft)
               HannaHeader(
                 title: s.trMapTitle,
-                showBack: onBack != null,
-                onBack: onBack,
+                showBack: widget.onBack != null,
+                onBack: widget.onBack,
                 trailing: GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -153,13 +182,17 @@ class LiveTrackingScreen extends StatelessWidget {
               ),
               const SizedBox(height: HannaSpace.md),
 
-              // Interactive Stylized Map Canvas (y=162 in FigCraft)
-              StylizedRouteMap(
+              // Interactive Live Route Map Canvas (y=162 in FigCraft)
+              LiveRouteMap(
                 progress: progress,
                 busNumber: busNo,
                 streetLabel: trip?.currentStreet ?? 'Blvd des Martyrs',
                 speedKmh: trip?.speedKmh ?? 38,
                 height: 240,
+                location: trip?.location,
+                routePoints: trip?.routePoints,
+                stations: trip?.stations,
+                tileProvider: widget.tileProvider,
               ),
               const SizedBox(height: HannaSpace.md),
 

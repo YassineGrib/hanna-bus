@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import '../theme/hanna_tokens.dart';
 import 'models.dart';
 
 abstract final class DemoSeed {
+  static const List<LatLng> demoRoutePoints = [
+    LatLng(36.7760, 3.0598),
+    LatLng(36.7695, 3.0560),
+    LatLng(36.7640, 3.0525),
+    LatLng(36.7580, 3.0480),
+    LatLng(36.7538, 3.0520),
+    LatLng(36.7495, 3.0555),
+    LatLng(36.7460, 3.0570),
+    LatLng(36.7420, 3.0610),
+    LatLng(36.7385, 3.0650),
+    LatLng(36.7350, 3.0680),
+  ];
   static const ParentUser demoUser = ParentUser(
     id: '1',
     name: 'Karim Mansouri',
@@ -202,6 +215,8 @@ abstract final class DemoSeed {
       capacity: 22,
       currentStreet: 'Rue Didouche Mourad',
       status: 'en_route',
+      location: null,
+      routePoints: demoRoutePoints,
       stations: [
         TripStation(
           id: 1,
@@ -210,6 +225,8 @@ abstract final class DemoSeed {
           scheduledTime: '07:10',
           subtitle: ar ? 'غادرت في الموعد' : (fr ? 'Depart a l heure' : 'Departed on schedule'),
           status: 'passed',
+          lat: 36.7760,
+          lng: 3.0598,
         ),
         TripStation(
           id: 2,
@@ -218,6 +235,8 @@ abstract final class DemoSeed {
           scheduledTime: '07:25',
           subtitle: ar ? 'تم مسح صعود يوسف' : (fr ? 'Embarquement Youssef scanne' : 'Youssef QR scanned'),
           status: 'passed',
+          lat: 36.7580,
+          lng: 3.0480,
         ),
         TripStation(
           id: 3,
@@ -226,6 +245,8 @@ abstract final class DemoSeed {
           scheduledTime: '07:38',
           subtitle: ar ? 'المحطة الحالية' : (fr ? 'Arret en cours' : 'Approaching stop now'),
           status: 'current',
+          lat: 36.7460,
+          lng: 3.0570,
         ),
         TripStation(
           id: 4,
@@ -234,6 +255,8 @@ abstract final class DemoSeed {
           scheduledTime: '07:50',
           subtitle: ar ? 'الوصول المتوقع خلال 6 د' : (fr ? 'Arrivee prevue dans 6 min' : 'Estimated arrival in 6 min'),
           status: 'upcoming',
+          lat: 36.7350,
+          lng: 3.0680,
         ),
       ],
     );
@@ -261,6 +284,7 @@ abstract final class DemoSeed {
         statusCode: 'arrived',
         delayMinutes: 0,
         driverName: 'Ahmed Benali',
+        routePoints: demoRoutePoints,
         qrAudit: const [
           {'event': 'Boarded Bus 04', 'time': '07:25', 'gate': 'Hydra North'},
           {'event': 'School Gate Scan', 'time': '07:51', 'gate': 'Gate 1'},
@@ -281,6 +305,7 @@ abstract final class DemoSeed {
         statusCode: 'delayed',
         delayMinutes: 4,
         driverName: 'Ahmed Benali',
+        routePoints: demoRoutePoints,
         qrAudit: const [
           {'event': 'Boarded Bus 04', 'time': '15:32', 'gate': 'School Bay'},
           {'event': 'Parent QR Handover', 'time': '16:04', 'gate': 'Hydra North'},
@@ -301,6 +326,7 @@ abstract final class DemoSeed {
         statusCode: 'arrived',
         delayMinutes: 0,
         driverName: 'Ahmed Benali',
+        routePoints: demoRoutePoints,
         qrAudit: const [
           {'event': 'Boarded Bus 04', 'time': '07:25', 'gate': 'Hydra North'},
           {'event': 'School Gate Scan', 'time': '07:49', 'gate': 'Gate 2'},

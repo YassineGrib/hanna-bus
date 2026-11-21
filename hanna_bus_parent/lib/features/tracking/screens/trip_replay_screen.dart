@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/state/app_state.dart';
@@ -7,11 +8,12 @@ import '../../../core/theme/hanna_tokens.dart';
 import '../../../core/widgets/hanna_background.dart';
 import '../../../core/widgets/hanna_button.dart';
 import '../../../core/widgets/hanna_header.dart';
-import '../widgets/stylized_route_map.dart';
+import '../widgets/live_route_map.dart';
 
 class TripReplayScreen extends StatefulWidget {
-  const TripReplayScreen({super.key, required this.tripId});
+  const TripReplayScreen({super.key, required this.tripId, this.tileProvider});
   final String tripId;
+  final TileProvider? tileProvider;
 
   @override
   State<TripReplayScreen> createState() => _TripReplayScreenState();
@@ -83,14 +85,15 @@ class _TripReplayScreenState extends State<TripReplayScreen> {
                   const SizedBox(height: 12),
 
                   // Recorded Route Map Replay (y=138 in FigCraft)
-                  StylizedRouteMap(
+                  LiveRouteMap(
                     progress: 1.0,
                     busNumber: trip?.busNumber ?? '04',
                     streetLabel: '${trip?.distanceKm ?? 6.8} km · ${trip?.durationMinutes ?? 24} min',
                     speedKmh: trip?.avgSpeedKmh ?? 32,
-                    waypoints: trip?.waypoints ?? const [],
                     replayMode: true,
                     height: 220,
+                    routePoints: trip?.routePoints,
+                    tileProvider: widget.tileProvider,
                   ),
                   const SizedBox(height: 10),
 

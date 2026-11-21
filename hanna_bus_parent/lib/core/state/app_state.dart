@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/hanna_api_client.dart';
 import '../theme/hanna_tokens.dart';
@@ -6,10 +7,11 @@ import 'demo_seed.dart';
 import 'models.dart';
 
 class AppStateController extends ChangeNotifier {
-  AppStateController({HannaApiClient? apiClient})
+  AppStateController({HannaApiClient? apiClient, this.tileProvider})
       : api = apiClient ?? HannaApiClient();
 
   final HannaApiClient api;
+  final TileProvider? tileProvider;
 
   static const _kPaletteKey = 'hanna_palette';
   static const _kBrightnessKey = 'hanna_brightness';
@@ -386,6 +388,18 @@ class AppStateController extends ChangeNotifier {
     }
   }
 
+  Future<void> refreshActiveTrip() async {
+    if (_isOfflineDemoMode || !_isAuthenticated) return;
+    try {
+      final childId = selectedChild?.id;
+      final trip = await api.getActiveTrip(childId: childId);
+      _activeTrip = trip;
+      notifyListeners();
+    } catch (_) {
+      // Keep cached data
+    }
+  }
+
   Future<void> _cacheQrSnapshotForSelectedChild() async {
     final c = selectedChild;
     if (c == null) return;
@@ -751,5 +765,10 @@ class AppStateScope extends InheritedNotifier<AppStateController> {
     final scope = context.dependOnInheritedWidgetOfExactType<AppStateScope>();
     assert(scope != null, 'No AppStateScope found in widget tree');
     return scope!.notifier!;
+  }
+
+  static AppStateController? maybeOf(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<AppStateScope>();
+    return scope?.notifier;
   }
 }
