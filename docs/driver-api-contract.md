@@ -128,3 +128,13 @@ Everything above is implemented. This section adds the remaining pieces. Existin
 ### 8.4 Done means (round 2)
 - `php artisan test` green, all earlier tests still passing, new tests for every item in 8.1 to 8.3.
 - The Flutter driver app (`hanna_bus_driver/`) calls every endpoint in 8.2.
+
+### 8.5 Driver map data (added after emulator testing)
+- `GET /driver/trips/today` items also return `route_points` (list of `[lat, lng]`, `[]` when unknown), the same value the parent endpoint returns, so the driver app can draw the route on a real map. Station `lat` and `lng` stay as they are.
+
+### 8.6 Daily trip generation (added after emulator testing)
+Today's trips used to exist only as seeded rows. Add the artisan command `php artisan hanna:generate-trips {--date=}` (default today, `YYYY-MM-DD`):
+- For every bus that has a `bus_assignments` row for that date, and for every bus with a driver on the previous service date, clone the most recent morning trip and the most recent return trip of that bus, with their stations and route points, into new `active_trips` rows for the date: id `trip-{bus_number}-{am|return}-{YYYYMMDD}`, `status = scheduled`, `service_date` set, `driver_id` from that day's assignment, and progress, location, speed, `started_at`, `ended_at`, `delay_minutes` and `onboard_count` reset; stations reset to `upcoming`.
+- Idempotent: running it twice creates nothing new. It never touches an existing row for that date.
+- Registered in the scheduler to run daily at 00:05. The seeder may keep its demo trips.
+- Feature tests cover: creating trips, idempotence, no assignment means no trip, driver and bus from the assignment, and `/driver/trips/today` returning the generated trips.
