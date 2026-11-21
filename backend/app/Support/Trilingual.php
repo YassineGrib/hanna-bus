@@ -8,13 +8,14 @@ class Trilingual
 {
     public static function lang(Request $request): string
     {
-        $raw = strtolower((string) ($request->header('Accept-Language') ?? 'en'));
+        $raw = strtolower((string) ($request->query('lang') ?? $request->header('Accept-Language') ?? 'en'));
         if (str_starts_with($raw, 'ar')) {
             return 'ar';
         }
         if (str_starts_with($raw, 'fr')) {
             return 'fr';
         }
+
         return 'en';
     }
 

@@ -3,7 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\ActiveTrip;
+use App\Models\Bus;
+use App\Models\BusAssignment;
 use App\Models\Child;
+use App\Models\DriverProfile;
 use App\Models\SafetyNotification;
 use App\Models\SchoolBulletin;
 use App\Models\TransitAlertSetting;
@@ -319,6 +322,66 @@ class ParentPortalDemoSeeder extends Seeder
                 'body_fr' => $bfr,
                 'published_at' => now()->subHours($idx * 6),
             ]);
+        }
+
+        $this->seedDrivers($trip04);
+    }
+
+    private function seedDrivers(ActiveTrip $trip): void
+    {
+        $driver = User::updateOrCreate(['email' => 'ahmed.benali@mail.dz'], [
+            'name' => 'Ahmed Benali', 'password' => Hash::make('Password123!'), 'role' => 'driver',
+            'phone' => '+213 550 77 88 99',
+        ]);
+        $other = User::updateOrCreate(['email' => 'samir.rahmani@mail.dz'], [
+            'name' => 'Samir Rahmani', 'password' => Hash::make('Password123!'), 'role' => 'driver',
+            'phone' => '+213 550 77 88 11',
+        ]);
+        foreach ([[$driver, 'DZ-D-2024-0457'], [$other, 'DZ-D-2024-0458']] as [$user, $license]) {
+            DriverProfile::updateOrCreate(['user_id' => $user->id], [
+                'license_number' => $license, 'rating' => 4.9, 'trips_count' => 0,
+            ]);
+        }
+        foreach (['04' => 'in_service', '07' => 'available', '11' => 'in_service', '02' => 'workshop'] as $number => $status) {
+            $number = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
+            Bus::updateOrCreate(['id' => 'bus-'.$number], [
+                'number' => $number, 'line_name' => 'Route '.$number, 'plate_number' => $number.'821-116',
+                'vehicle_model' => 'Mercedes Sprinter', 'capacity' => 24, 'status' => $status,
+            ]);
+        }
+        foreach ([[$driver, '04'], [$other, '11']] as [$user, $number]) {
+            BusAssignment::updateOrCreate(['driver_id' => $user->id, 'date' => today()->toDateString()], ['bus_id' => 'bus-'.$number]);
+        }
+        $points = [[36.7538, 3.0588], [36.7541, 3.0592], [36.7545, 3.0597],
+            [36.7548, 3.0600], [36.7552, 3.0601], [36.7557, 3.0604],
+            [36.7562, 3.0608], [36.7567, 3.0611], [36.7572, 3.0615], [36.7578, 3.0619]];
+        $trip->update(['driver_id' => $driver->id, 'bus_id' => 'bus-04', 'service_date' => today(),
+            'scheduled_start' => today()->setTime(7, 5), 'started_at' => today()->setTime(7, 5), 'route_points_json' => $points]);
+        foreach ($trip->stations as $index => $station) {
+            [$lat, $lng] = $points[min($index * 2, count($points) - 1)];
+            $station->update(['lat' => $lat, 'lng' => $lng]);
+        }
+        // Snapshot coordinates on existing replay records; normalized waypoints stay intact.
+        TripHistory::where('bus_number', '04')->update(['route_points_json' => json_encode($points)]);
+        $return = $trip->replicate();
+        $return->id = 'trip-04-return';
+        $return->is_morning = false;
+        $return->status = 'scheduled';
+        $return->route_name = 'Return Route 04';
+        $return->scheduled_start = today()->setTime(15, 20);
+        $return->started_at = null;
+        $return->onboard_count = 0;
+        $return->route_points_json = array_reverse($points);
+        ActiveTrip::updateOrCreate(['id' => $return->id], $return->attributesToArray());
+        $return = ActiveTrip::findOrFail('trip-04-return');
+        $return->stations()->delete();
+        foreach ($trip->stations->reverse()->values() as $index => $station) {
+            $copy = $station->replicate();
+            $copy->trip_id = $return->id;
+            $copy->sort_order = $index + 1;
+            $copy->scheduled_time = sprintf('15:%02d', 20 + $index * 5);
+            $copy->status = 'upcoming';
+            $copy->save();
         }
     }
 }

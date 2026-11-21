@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use App\Support\Trilingual;
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class RequireRole
+{
+    public function handle(Request $request, Closure $next, string $role): Response
+    {
+        if ($request->user()?->role !== $role) {
+            return response()->json(['message' => Trilingual::pick(Trilingual::lang($request), 'Access denied.', 'الوصول مرفوض.', 'Accès refusé.')], 403);
+        }
+
+        return $next($request);
+    }
+}

@@ -4,6 +4,13 @@ use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BulletinSupportController;
 use App\Http\Controllers\Api\V1\ChildController;
+use App\Http\Controllers\Api\V1\DriverAuthController;
+use App\Http\Controllers\Api\V1\DriverBoardingController;
+use App\Http\Controllers\Api\V1\DriverFleetController;
+use App\Http\Controllers\Api\V1\DriverHistoryController;
+use App\Http\Controllers\Api\V1\DriverMessageController;
+use App\Http\Controllers\Api\V1\DriverSosController;
+use App\Http\Controllers\Api\V1\DriverTripController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\SettingsController;
 use App\Http\Controllers\Api\V1\TrackingController;
@@ -30,7 +37,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-Route::middleware('auth:sanctum')->prefix('parent')->group(function () {
+Route::middleware(['auth:sanctum', 'role:parent'])->prefix('parent')->group(function () {
     Route::delete('/account', [AuthController::class, 'deleteAccount']);
 
     Route::get('/profile', [SettingsController::class, 'getProfile']);
@@ -58,4 +65,28 @@ Route::middleware('auth:sanctum')->prefix('parent')->group(function () {
 
     Route::get('/bulletins', [BulletinSupportController::class, 'bulletins']);
     Route::post('/support/messages', [BulletinSupportController::class, 'storeMessage']);
+    Route::get('/support/messages', [BulletinSupportController::class, 'messages']);
+});
+
+Route::post('/driver/auth/login', [DriverAuthController::class, 'login']);
+Route::middleware(['auth:sanctum', 'role:driver'])->prefix('driver')->group(function () {
+    Route::get('/profile', [DriverFleetController::class, 'profile']);
+    Route::get('/buses', [DriverFleetController::class, 'buses']);
+    Route::get('/rotation', [DriverFleetController::class, 'rotation']);
+    Route::put('/bus', [DriverFleetController::class, 'updateBus']);
+    Route::post('/inspections', [DriverFleetController::class, 'inspection']);
+    Route::get('/trips/today', [DriverTripController::class, 'today']);
+    Route::post('/trips/{trip}/start', [DriverTripController::class, 'start']);
+    Route::post('/trips/{trip}/location', [DriverTripController::class, 'location'])->middleware('throttle:driver-location');
+    Route::post('/trips/{trip}/stations/{station}/arrive', [DriverTripController::class, 'arrive']);
+    Route::post('/trips/{trip}/delay', [DriverTripController::class, 'delay']);
+    Route::post('/trips/{trip}/end', [DriverTripController::class, 'end']);
+    Route::get('/trips/{trip}/students', [DriverBoardingController::class, 'students']);
+    Route::post('/trips/{trip}/boarding', [DriverBoardingController::class, 'store']);
+    Route::get('/messages', [DriverMessageController::class, 'index']);
+    Route::get('/messages/{parent}', [DriverMessageController::class, 'show']);
+    Route::post('/messages/{parent}', [DriverMessageController::class, 'store']);
+    Route::get('/history', [DriverHistoryController::class, 'history']);
+    Route::get('/stats', [DriverHistoryController::class, 'stats']);
+    Route::post('/sos', [DriverSosController::class, 'store']);
 });

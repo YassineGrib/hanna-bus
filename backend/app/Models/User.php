@@ -63,4 +63,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(AbsenceReport::class, 'parent_id');
     }
+
+    public function driverProfile(): HasOne
+    {
+        return $this->hasOne(DriverProfile::class);
+    }
+
+    public function busAssignments(): HasMany
+    {
+        return $this->hasMany(BusAssignment::class, 'driver_id');
+    }
+
+    public function driverTrips(): HasMany
+    {
+        return $this->hasMany(ActiveTrip::class, 'driver_id');
+    }
 }

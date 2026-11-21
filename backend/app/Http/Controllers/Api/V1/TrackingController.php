@@ -21,7 +21,7 @@ class TrackingController extends Controller
         if ($childId) {
             $child = Child::where('id', $childId)
                 ->where('parent_id', $request->user()->id)
-                ->first();
+                ->firstOrFail();
             if ($child) {
                 $busNumber = $child->bus_number;
             }
@@ -29,12 +29,16 @@ class TrackingController extends Controller
 
         if (! $busNumber) {
             $firstChild = $request->user()->children()->first();
-            $busNumber = $firstChild?->bus_number ?? '04';
+            $busNumber = $firstChild?->bus_number;
         }
+
+        abort_unless($request->user()->children()->where('bus_number', $busNumber)->exists(), 404);
 
         $trip = ActiveTrip::with('stations')
             ->where('bus_number', $busNumber)
-            ->first() ?? ActiveTrip::with('stations')->first();
+            ->orderByRaw("CASE status WHEN 'en_route' THEN 0 WHEN 'scheduled' THEN 1 ELSE 2 END")
+            ->orderByDesc('started_at')
+            ->first();
 
         if (! $trip) {
             return response()->json(['message' => 'No active trip found.'], 404);
@@ -57,6 +61,11 @@ class TrackingController extends Controller
             'capacity' => $trip->capacity,
             'current_street' => $trip->current_street,
             'status' => $trip->status,
+            'location' => $trip->last_location_at && $trip->lat !== null && $trip->lng !== null ? [
+                'lat' => $trip->lat, 'lng' => $trip->lng, 'heading' => $trip->heading,
+                'updated_at' => $trip->last_location_at->toISOString(),
+            ] : null,
+            'route_points' => $trip->route_points_json ?? [],
             'stations' => $trip->stations->map(fn ($s) => [
                 'id' => $s->id,
                 'sort_order' => $s->sort_order,
@@ -64,6 +73,8 @@ class TrackingController extends Controller
                 'scheduled_time' => $s->scheduled_time,
                 'subtitle' => Trilingual::pick($lang, $s->subtitle_en, $s->subtitle_ar, $s->subtitle_fr),
                 'status' => $s->status,
+                'lat' => $s->lat,
+                'lng' => $s->lng,
             ])->values(),
         ]);
     }
@@ -144,6 +155,7 @@ class TrackingController extends Controller
             'vehicle_model' => $trip->vehicle_model,
             'waypoints' => $trip->waypoints_json ?? [[0.15, 0.78], [0.48, 0.50], [0.82, 0.22]],
             'qr_audit' => $trip->qr_audit_json ?? [],
+            'route_points' => $trip->route_points_json ?? [],
         ]);
     }
 }

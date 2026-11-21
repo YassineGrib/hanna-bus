@@ -12,6 +12,8 @@ class TripHistory extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'trip_id',
+        'route_points_json',
         'id',
         'child_id',
         'bus_number',
@@ -37,6 +39,7 @@ class TripHistory extends Model
     protected function casts(): array
     {
         return [
+            'route_points_json' => 'array',
             'distance_km' => 'float',
             'driver_rating' => 'float',
             'waypoints_json' => 'array',

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TripStation extends Model
 {
     protected $fillable = [
+        'lat', 'lng',
         'trip_id',
         'sort_order',
         'name_en',
@@ -23,5 +24,13 @@ class TripStation extends Model
     public function trip(): BelongsTo
     {
         return $this->belongsTo(ActiveTrip::class, 'trip_id');
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'lat' => 'float',
+            'lng' => 'float',
+        ];
     }
 }
