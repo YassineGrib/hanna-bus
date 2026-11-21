@@ -3,8 +3,8 @@ import 'hanna_typography.dart';
 
 enum HannaPalette {
   mustard('mustard'),
-  tealGray('tealGray'),
-  ocean('ocean');
+  tealGray('teal-gray'),
+  ocean('ocean-blue');
 
   const HannaPalette(this.apiValue);
   final String apiValue;
@@ -396,6 +396,16 @@ abstract final class HannaTheme {
       scaffoldBackgroundColor: t.background,
       textTheme: textTheme,
       primaryTextTheme: textTheme,
+      chipTheme: ChipThemeData(
+        backgroundColor: t.surface,
+        selectedColor: t.actionPrimary,
+        secondarySelectedColor: t.actionPrimary,
+        checkmarkColor: t.onPrimary,
+        side: BorderSide(color: t.border),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        labelStyle: textTheme.bodyMedium?.copyWith(color: t.text),
+        secondaryLabelStyle: textTheme.bodyMedium?.copyWith(color: t.onPrimary),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         hintStyle: TextStyle(
           fontFamily: defaultFontFamily,

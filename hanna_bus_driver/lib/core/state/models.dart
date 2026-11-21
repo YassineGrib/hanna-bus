@@ -2,6 +2,11 @@ typedef Json = Map<String, dynamic>;
 
 String label(dynamic value, String language) {
   if (value is Map) return (value[language] ?? value['en'] ?? '').toString();
+  if (value is List) {
+    return value
+        .map((v) => label(v, language))
+        .join(language == 'ar' ? '، ' : ', ');
+  }
   return (value ?? '').toString();
 }
 

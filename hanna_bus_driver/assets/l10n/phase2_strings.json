@@ -1,0 +1,442 @@
+{
+  "messages": [
+    "Messages",
+    "الرسائل"
+  ],
+  "unread": [
+    "Unread",
+    "غير مقروءة"
+  ],
+  "urgent": [
+    "Urgent",
+    "عاجلة"
+  ],
+  "empty": [
+    "Nothing to show yet",
+    "لا توجد بيانات حتى الآن"
+  ],
+  "send": [
+    "Send",
+    "إرسال"
+  ],
+  "saved": [
+    "Saved",
+    "تم الحفظ"
+  ],
+  "history": [
+    "Trip history",
+    "سجل الرحلات"
+  ],
+  "stats": [
+    "Performance and rating",
+    "الأداء والتقييم"
+  ],
+  "week": [
+    "Week",
+    "أسبوع"
+  ],
+  "month": [
+    "Month",
+    "شهر"
+  ],
+  "trips": [
+    "Trips",
+    "الرحلات"
+  ],
+  "km": [
+    "Kilometers",
+    "كيلومترات"
+  ],
+  "on_time_rate": [
+    "On time rate",
+    "نسبة الالتزام بالوقت"
+  ],
+  "rating": [
+    "Parent rating",
+    "تقييم الأولياء"
+  ],
+  "trips_count": [
+    "Total trips",
+    "إجمالي الرحلات"
+  ],
+  "trips_this_month": [
+    "Trips this month",
+    "رحلات هذا الشهر"
+  ],
+  "km_this_month": [
+    "Kilometers this month",
+    "كيلومترات هذا الشهر"
+  ],
+  "safe_scans": [
+    "Safe QR scans",
+    "عمليات مسح آمنة"
+  ],
+  "morning": [
+    "Morning",
+    "صباحية"
+  ],
+  "return": [
+    "Return",
+    "عودة"
+  ],
+  "delayed": [
+    "Delayed",
+    "متأخرة"
+  ],
+  "students": [
+    "Students",
+    "الطلاب"
+  ],
+  "profile": [
+    "Driver profile",
+    "ملف السائق"
+  ],
+  "settings": [
+    "Settings and safety",
+    "الإعدادات والسلامة"
+  ],
+  "name": [
+    "Name",
+    "الاسم"
+  ],
+  "phone": [
+    "Phone",
+    "الهاتف"
+  ],
+  "save": [
+    "Save changes",
+    "حفظ التغييرات"
+  ],
+  "notProvided": [
+    "Not provided",
+    "غير متوفر"
+  ],
+  "blood_type": [
+    "Blood type",
+    "فصيلة الدم"
+  ],
+  "allergies": [
+    "Allergies",
+    "الحساسية"
+  ],
+  "chronic_conditions": [
+    "Chronic conditions",
+    "الأمراض المزمنة"
+  ],
+  "first_aid_protocol": [
+    "First aid action plan",
+    "خطة الإسعافات الأولية"
+  ],
+  "backup_phone": [
+    "Backup phone",
+    "هاتف بديل"
+  ],
+  "call": [
+    "Call",
+    "اتصال"
+  ],
+  "dismissal_rule": [
+    "Handover protocol",
+    "قواعد تسليم الطفل"
+  ],
+  "bus_number": [
+    "Bus number",
+    "رقم الحافلة"
+  ],
+  "seat_number": [
+    "Seat",
+    "المقعد"
+  ],
+  "stop_name": [
+    "Pickup stop",
+    "محطة الصعود"
+  ],
+  "stop_time": [
+    "Morning pickup",
+    "الصعود صباحا"
+  ],
+  "return_time": [
+    "Afternoon return",
+    "العودة مساء"
+  ],
+  "insurance_expires_on": [
+    "Insurance expiry",
+    "انتهاء التأمين"
+  ],
+  "technical_control_expires_on": [
+    "Technical control expiry",
+    "انتهاء الفحص التقني"
+  ],
+  "last_service_on": [
+    "Last service",
+    "آخر صيانة"
+  ],
+  "last_inspection": [
+    "Last inspection",
+    "آخر فحص"
+  ],
+  "passed": [
+    "Passed",
+    "ناجح"
+  ],
+  "failed": [
+    "Failed",
+    "غير ناجح"
+  ],
+  "plate_number": [
+    "Plate number",
+    "رقم التسجيل"
+  ],
+  "vehicle_model": [
+    "Vehicle model",
+    "طراز الحافلة"
+  ],
+  "capacity": [
+    "Passenger seats",
+    "مقاعد الركاب"
+  ],
+  "max_speed_kmh": [
+    "Maximum speed in km/h",
+    "السرعة القصوى كم/س"
+  ],
+  "avg_speed_kmh": [
+    "Average speed in km/h",
+    "متوسط السرعة كم/س"
+  ],
+  "speeding_events": [
+    "Speeding events",
+    "حالات تجاوز السرعة"
+  ],
+  "distance_km": [
+    "Distance in km",
+    "المسافة كم"
+  ],
+  "driving_minutes": [
+    "Driving minutes",
+    "دقائق القيادة"
+  ],
+  "school": [
+    "School",
+    "المدرسة"
+  ],
+  "coordinator": [
+    "Fleet coordinator",
+    "منسق الأسطول"
+  ],
+  "civil_protection": [
+    "Civil Protection",
+    "الحماية المدنية"
+  ],
+  "police": [
+    "Police",
+    "الشرطة"
+  ],
+  "auto": [
+    "Automatic",
+    "تلقائي"
+  ],
+  "day": [
+    "Day",
+    "نهاري"
+  ],
+  "night": [
+    "Night",
+    "ليلي"
+  ],
+  "camera": [
+    "Camera",
+    "الكاميرا"
+  ],
+  "bluetooth": [
+    "Bluetooth scanner",
+    "قارئ بلوتوث"
+  ],
+  "voice_guidance": [
+    "Voice guidance",
+    "التوجيه الصوتي"
+  ],
+  "speed_chime": [
+    "Speed alert chime",
+    "نغمة تنبيه السرعة"
+  ],
+  "glare_mode": [
+    "Windshield glare mode",
+    "وضع انعكاس الزجاج"
+  ],
+  "radar_radius_m": [
+    "Proximity radius in meters",
+    "نطاق الاقتراب بالمتر"
+  ],
+  "scan_mode": [
+    "Boarding pass detection",
+    "التعرف على بطاقة الصعود"
+  ],
+  "scan_chime": [
+    "Scan confirmation chime",
+    "نغمة تأكيد المسح"
+  ],
+  "biometric_unlock": [
+    "Biometric shift unlock",
+    "فتح الوردية بالبصمة"
+  ],
+  "quick_pin_enabled": [
+    "Quick PIN",
+    "الرمز السريع"
+  ],
+  "privacy_lock_minutes": [
+    "Privacy lock timer in minutes",
+    "مؤقت قفل الخصوصية بالدقائق"
+  ],
+  "preferenceOnly": [
+    "Biometrics and Quick PIN are stored preferences only. Device authentication is not enabled. The privacy timer covers the screen until you resume.",
+    "البصمة والرمز السريع تفضيلات محفوظة فقط. التحقق من هوية الجهاز غير مفعل. يخفي مؤقت الخصوصية الشاشة حتى المتابعة."
+  ],
+  "navigationPreference": [
+    "Voice guidance and proximity radius are saved preferences. Turn guidance and automatic proximity alerts require a routing provider. Speed alerts use a 60 km/h threshold.",
+    "التوجيه الصوتي ونطاق الاقتراب تفضيلات محفوظة. يتطلب التوجيه والتنبيه التلقائي مزود مسارات. تنبيه السرعة عند تجاوز 60 كم/س."
+  ],
+  "hardwareHint": [
+    "Bluetooth scanners must be paired in device settings as a keyboard. Scan into the student code field.",
+    "يجب إقران قارئ بلوتوث كلوحة مفاتيح في إعدادات الجهاز. امسح في حقل رمز الطالب."
+  ],
+  "brightness_mode": [
+    "Display brightness",
+    "سطوع الشاشة"
+  ],
+  "theme_palette": [
+    "Color palette",
+    "لوحة الألوان"
+  ],
+  "language": [
+    "Application language",
+    "لغة التطبيق"
+  ],
+  "testChime": [
+    "Test confirmation chime",
+    "تجربة نغمة التأكيد"
+  ],
+  "recoveryEmail": [
+    "Recover your password",
+    "استعادة كلمة المرور"
+  ],
+  "recoveryCode": [
+    "Verify your email",
+    "التحقق من البريد"
+  ],
+  "recoveryPassword": [
+    "Set a new password",
+    "تعيين كلمة مرور جديدة"
+  ],
+  "recoveryHint": [
+    "Enter your driver email to receive a verification code",
+    "أدخل بريد السائق لتلقي رمز التحقق"
+  ],
+  "code": [
+    "Verification code",
+    "رمز التحقق"
+  ],
+  "newPassword": [
+    "New password",
+    "كلمة مرور جديدة"
+  ],
+  "confirmPassword": [
+    "Confirm password",
+    "تأكيد كلمة المرور"
+  ],
+  "passwordMismatch": [
+    "Passwords must match and contain at least 8 characters",
+    "يجب تطابق كلمتي المرور وأن تتضمنا 8 أحرف على الأقل"
+  ],
+  "passwordReset": [
+    "Password updated. Sign in with your new password.",
+    "تم تحديث كلمة المرور. سجل الدخول بكلمة المرور الجديدة."
+  ],
+  "resend": [
+    "Resend code",
+    "إعادة إرسال الرمز"
+  ],
+  "backToLogin": [
+    "Back to sign in",
+    "العودة لتسجيل الدخول"
+  ],
+  "recoveryDemoCode": [
+    "Development verification code",
+    "رمز التحقق للتطوير"
+  ],
+  "diagnostics": [
+    "Device diagnostics",
+    "تشخيص الجهاز"
+  ],
+  "gpsAvailable": [
+    "Location sample available",
+    "توجد قراءة للموقع"
+  ],
+  "gpsUnknown": [
+    "No location sample yet",
+    "لا توجد قراءة للموقع بعد"
+  ],
+  "connectionLive": [
+    "API session",
+    "جلسة متصلة بالخادم"
+  ],
+  "haptic": [
+    "Haptic feedback on successful scans",
+    "اهتزاز عند نجاح المسح"
+  ],
+  "handbookAbsence": [
+    "Wait safely and call the guardian. Notify dispatch of an unreported absence.",
+    "انتظر بأمان واتصل بولي الأمر. أبلغ المنسق عن الغياب غير المبلغ عنه."
+  ],
+  "handbookBreakdown": [
+    "Stop safely, secure the students, switch on hazard lights and contact dispatch. Use SOS when needed.",
+    "توقف بأمان وقم بتأمين الطلاب وتشغيل أضواء التحذير واتصل بالمنسق. استخدم الطوارئ عند الحاجة."
+  ],
+  "privacyCovered": [
+    "Student information is covered for privacy",
+    "تم إخفاء معلومات الطلاب لحماية الخصوصية"
+  ],
+  "resumeShift": [
+    "Resume shift",
+    "متابعة الوردية"
+  ],
+  "seatbelts": [
+    "Passenger seatbelts",
+    "أحزمة أمان الركاب"
+  ],
+  "emergency_exit": [
+    "Emergency exit and buzzer",
+    "مخرج الطوارئ والإنذار"
+  ],
+  "engine_oil": [
+    "Engine oil",
+    "زيت المحرك"
+  ],
+  "coolant": [
+    "Coolant",
+    "سائل التبريد"
+  ],
+  "washer_fluid": [
+    "Washer fluid",
+    "سائل غسل الزجاج"
+  ],
+  "fire_extinguishers": [
+    "Fire extinguishers",
+    "طفايات الحريق"
+  ],
+  "first_aid_kit": [
+    "First aid kit",
+    "حقيبة الإسعافات الأولية"
+  ],
+  "mirrors": [
+    "Mirrors and windshield",
+    "المرايا والزجاج الأمامي"
+  ],
+  "dataUnavailable": [
+    "This data is not available yet. Please retry later.",
+    "هذه البيانات غير متوفرة بعد. يرجى المحاولة لاحقا."
+  ],
+  "recoveryValidation": [
+    "Check your email, verification code and password. Request a new code if it expired.",
+    "تحقق من البريد ورمز التحقق وكلمة المرور. اطلب رمزا جديدا إذا انتهت صلاحيته."
+  ]
+}

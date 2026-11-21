@@ -3,6 +3,8 @@ import '../../core/l10n/app_strings.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/hanna_tokens.dart';
 import '../../core/widgets/driver_widgets.dart';
+import 'recovery_screen.dart';
+import '../home/home_shell.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -23,7 +25,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final email = TextEditingController(), password = TextEditingController();
-  bool signIn = false, recovery = false, visible = false;
+  bool signIn = false, visible = false;
   @override
   void dispose() {
     email.dispose();
@@ -58,13 +60,7 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
         const SizedBox(height: 24),
         Text(
-          a(
-            recovery
-                ? 'rc_t1'
-                : signIn
-                ? 'in_t1'
-                : 'welcome_t1',
-          ),
+          a(signIn ? 'in_t1' : 'welcome_t1'),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 38,
@@ -73,30 +69,19 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
         Text(
-          a(
-            recovery
-                ? 'rc_t2'
-                : signIn
-                ? 'in_t2'
-                : 'welcome_t2',
-          ),
+          a(signIn ? 'in_t2' : 'welcome_t2'),
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w700),
         ),
-        Text(
-          recovery
-              ? s.t('recoveryUnavailable')
-              : a(signIn ? 'in_sub' : 'welcome_sub'),
-          textAlign: TextAlign.center,
-        ),
+        Text(a(signIn ? 'in_sub' : 'welcome_sub'), textAlign: TextAlign.center),
         const SizedBox(height: 20),
-        if (!signIn && !recovery)
+        if (!signIn)
           DriverButton(
             a('cont'),
             key: const Key('welcome-continue'),
             onPressed: () => setState(() => signIn = true),
           ),
-        if (signIn && !recovery) ...[
+        if (signIn) ...[
           DriverField(
             label: a('email'),
             controller: email,
@@ -122,7 +107,8 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const Spacer(),
               TextButton(
-                onPressed: () => setState(() => recovery = true),
+                onPressed: () =>
+                    openDriverScreen(context, RecoveryScreen(state: state)),
                 child: Text(a('forgot')),
               ),
             ],
@@ -136,12 +122,6 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           Text(s.t('demoHelp'), style: Theme.of(context).textTheme.bodySmall),
         ],
-        if (recovery)
-          DriverButton(
-            a('back_link'),
-            onPressed: () => setState(() => recovery = false),
-            secondary: true,
-          ),
       ],
     );
   }

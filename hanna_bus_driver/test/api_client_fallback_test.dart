@@ -6,6 +6,85 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  test(
+    'labelled demo implements every phase 2 module without transport calls',
+    () async {
+      var networkCalls = 0;
+      final repo = DriverRepository(
+        api: DriverApiClient(
+          client: MockClient((_) async {
+            networkCalls++;
+            throw http.ClientException('refused');
+          }),
+        ),
+      );
+      addTearDown(repo.close);
+      await repo.login('ahmed.benali@mail.dz', 'Password123!');
+      for (final path in [
+        '/driver/messages',
+        '/driver/messages/parent-1?child_id=child-1',
+        '/driver/history?period=week',
+        '/driver/history?period=month',
+        '/driver/history?period=all',
+        '/driver/stats',
+        '/driver/students/child-1',
+        '/driver/profile',
+        '/driver/settings',
+        '/driver/contacts',
+        '/driver/telemetry/today',
+        '/driver/buses/bus-04',
+      ]) {
+        expect(await repo.request('GET', path), isNotNull, reason: path);
+      }
+      await repo.request('POST', '/driver/messages/parent-1', {
+        'child_id': 'child-1',
+        'message': 'On my way',
+      });
+      await repo.request('PUT', '/driver/profile', {
+        'name': 'Updated',
+        'phone': '0550123456',
+        'locale': 'ar',
+      });
+      await repo.request('PUT', '/driver/settings', {
+        'theme_palette': 'ocean-blue',
+        'brightness_mode': 'dark',
+      });
+      expect(
+        (await repo.request('GET', '/driver/settings'))['theme_palette'],
+        'ocean-blue',
+      );
+      expect(
+        (await repo.request('GET', '/driver/profile'))['user']['name'],
+        'Updated',
+      );
+      expect(networkCalls, 1);
+      expect(repo.isDemo, true);
+    },
+  );
+  test('unavailable round 2 endpoint in live session stays an error', () async {
+    final repo = DriverRepository(
+      api: DriverApiClient(
+        client: MockClient(
+          (r) async => r.url.path.endsWith('/login')
+              ? http.Response('{"token":"live","user":{"role":"driver"}}', 200)
+              : http.Response('{"message":"not deployed"}', 404),
+        ),
+      ),
+    );
+    addTearDown(repo.close);
+    await repo.login('ahmed.benali@mail.dz', 'Password123!');
+    for (final path in [
+      '/driver/settings',
+      '/driver/students/child-1',
+      '/driver/contacts',
+    ]) {
+      await expectLater(
+        repo.request('GET', path),
+        throwsA(isA<ApiFailure>().having((e) => e.status, 'status', 404)),
+      );
+    }
+    expect(repo.isDemo, false);
+  });
   test('a live session never falls back during a failed trip write', () async {
     var loggedIn = false;
     final repo = DriverRepository(

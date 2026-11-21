@@ -23,6 +23,9 @@ class _SosScreenState extends State<SosScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    if (widget.state.contacts.isEmpty) {
+      Future.microtask(() => widget.state.run(widget.state.loadContacts));
+    }
   }
 
   @override
@@ -54,7 +57,15 @@ class _SosScreenState extends State<SosScreen> with WidgetsBindingObserver {
   }
 
   Future<void> callSchool() async {
-    const number = String.fromEnvironment('HANNA_SCHOOL_PHONE');
+    final number =
+        [
+          widget.state.contacts['coordinator']?['phone'],
+          widget.state.contacts['school']?['phone'],
+          widget.state.profile['coordinator']?['phone'],
+          widget.state.profile['school']?['phone'],
+          const String.fromEnvironment('HANNA_SCHOOL_PHONE'),
+        ].map((n) => '${n ?? ''}').where((n) => n.isNotEmpty).firstOrNull ??
+        '';
     if (number.isNotEmpty) {
       await call(number);
       return;

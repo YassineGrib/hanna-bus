@@ -81,6 +81,7 @@ class DriverField extends StatelessWidget {
     this.icon = 'envelope-simple',
     this.obscure = false,
     this.onChanged,
+    this.onSubmitted,
     this.latin = false,
     this.keyboard,
   });
@@ -88,6 +89,7 @@ class DriverField extends StatelessWidget {
   final TextEditingController? controller;
   final bool obscure, latin;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboard;
   @override
   Widget build(BuildContext context) {
@@ -95,6 +97,7 @@ class DriverField extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
       obscureText: obscure,
       keyboardType: keyboard,
       textDirection: latin ? TextDirection.ltr : null,

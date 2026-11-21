@@ -10,6 +10,12 @@ import 'package:hanna_bus_driver/features/trip/trip_screens.dart';
 import 'package:hanna_bus_driver/core/theme/hanna_typography.dart';
 import 'package:hanna_bus_driver/core/l10n/app_strings.dart';
 import 'helpers.dart';
+import 'package:hanna_bus_driver/features/messages/messages_screen.dart';
+import 'package:hanna_bus_driver/features/history/history_screens.dart';
+import 'package:hanna_bus_driver/features/profile/profile_screens.dart';
+import 'package:hanna_bus_driver/features/settings/settings_screens.dart';
+import 'package:hanna_bus_driver/features/students/dossier_screen.dart';
+import 'package:hanna_bus_driver/features/auth/recovery_screen.dart';
 
 void main() {
   for (final language in ['en', 'ar']) {
@@ -24,8 +30,36 @@ void main() {
           final state = await readyState();
           state.locale = Locale(language);
           state.brightness = brightness;
+          (state.repository as FakeRepository)
+                  .seed
+                  .savedSettings['brightness_mode'] =
+              brightness.name;
           addTearDown(state.dispose);
           final pages = <Widget>[
+            MessagesScreen(state: state),
+            MessageThreadScreen(
+              state: state,
+              parentId: 'parent-1',
+              childId: 'child-1',
+            ),
+            HistoryScreen(state: state),
+            StatsScreen(state: state),
+            ProfileScreen(state: state),
+            EditProfileScreen(state: state),
+            PassportScreen(state: state, busId: 'bus-04'),
+            TelemetryScreen(state: state),
+            ContactsScreen(state: state, calls: FakeCalls()),
+            for (final tab in ['transit', 'medical', 'guardian'])
+              DossierScreen(
+                state: state,
+                childId: 'child-1',
+                initialTab: tab,
+                calls: FakeCalls(),
+              ),
+            for (final section in SettingsSection.values)
+              SettingsScreen(state: state, section: section),
+            for (var step = 0; step < 3; step++)
+              RecoveryScreen(state: state, initialStep: step),
             AuthScreen(state: state),
             HomeShell(state: state),
             StudentsScreen(state: state),

@@ -5,6 +5,8 @@ import '../../core/state/models.dart';
 import '../../core/widgets/driver_widgets.dart';
 import '../../core/widgets/hanna_card.dart';
 import '../../core/widgets/hanna_icon.dart';
+import 'dossier_screen.dart';
+import '../home/home_shell.dart';
 
 class StudentsScreen extends StatelessWidget {
   const StudentsScreen({
@@ -99,14 +101,14 @@ class _StudentsContentState extends State<StudentsContent> {
               ))
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: StudentCard(student: student),
+                  child: StudentCard(student: student, state: state),
                 ),
             ]
           else
             for (final student in students)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: StudentCard(student: student),
+                child: StudentCard(student: student, state: state),
               ),
           if (students.isEmpty) Text(s.t('noStudents')),
         ],
@@ -116,12 +118,19 @@ class _StudentsContentState extends State<StudentsContent> {
 }
 
 class StudentCard extends StatelessWidget {
-  const StudentCard({super.key, required this.student});
+  const StudentCard({super.key, required this.student, this.state});
+  final DriverState? state;
   final Student student;
   @override
   Widget build(BuildContext context) {
     final s = AppStrings.of(context);
     return HannaCard(
+      onTap: state == null
+          ? null
+          : () => openDriverScreen(
+              context,
+              DossierScreen(state: state!, childId: student.id),
+            ),
       child: Row(
         children: [
           const HannaIcon('user'),

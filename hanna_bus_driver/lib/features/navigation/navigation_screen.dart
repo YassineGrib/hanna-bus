@@ -26,7 +26,17 @@ class NavigationContent extends StatelessWidget {
             child: SizedBox(
               height: 240,
               child: CustomPaint(
-                painter: RoutePainter(stops, HannaTokens.of(context)),
+                painter: RoutePainter(
+                  stops,
+                  state.settings['glare_mode'] == 'auto'
+                      ? HannaTokens.of(context)
+                      : HannaTokens.forPalette(
+                          state.palette,
+                          state.settings['glare_mode'] == 'night'
+                              ? Brightness.dark
+                              : Brightness.light,
+                        ),
+                ),
               ),
             ),
           ),

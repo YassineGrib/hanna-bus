@@ -61,6 +61,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (success) {
       accepted.add(key);
       unawaited(HapticFeedback.lightImpact());
+      if (widget.state.settings['scan_chime'] == true) {
+        unawaited(SystemSound.play(SystemSoundType.click));
+      }
     }
     if (mounted) setState(() => processing = false);
   }
@@ -89,36 +92,37 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 ),
             ],
           ),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: SizedBox(
-              height: 280,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  source.preview(
-                    onCode: (raw) => scan(raw),
-                    error: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(s.t('cameraDenied')),
+          if (widget.state.settings['scan_mode'] != 'bluetooth')
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: SizedBox(
+                height: 280,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    source.preview(
+                      onCode: (raw) => scan(raw),
+                      error: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(s.t('cameraDenied')),
+                      ),
                     ),
-                  ),
-                  IgnorePointer(
-                    child: Center(
-                      child: Container(
-                        width: 220,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: t.heroAccent, width: 3),
-                          borderRadius: BorderRadius.circular(24),
+                    IgnorePointer(
+                      child: Center(
+                        child: Container(
+                          width: 220,
+                          height: 220,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: t.heroAccent, width: 3),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           Text(
             '${widget.state.onboard} / ${widget.state.students.length} · ${s.t('on_bus')}',
           ),
@@ -127,6 +131,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
             controller: code,
             icon: 'qr-code',
             latin: true,
+            onSubmitted: widget.state.settings['scan_mode'] == 'bluetooth'
+                ? (raw) => scan(raw)
+                : null,
           ),
           DriverButton(
             s.t('confirm'),

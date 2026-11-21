@@ -4,9 +4,7 @@ import 'package:hanna_bus_driver/features/auth/auth_screens.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('welcome leads to sign in and recovery is honest UI only', (
-    tester,
-  ) async {
+  testWidgets('welcome leads to sign in and password recovery', (tester) async {
     final state = await readyState();
     addTearDown(state.dispose);
     await tester.pumpWidget(host(state, AuthScreen(state: state)));
@@ -20,7 +18,7 @@ void main() {
     );
     await tapVisible(tester, find.text('Forgot password?'));
     expect(
-      find.text('Contact your fleet coordinator to recover your password'),
+      find.text('Enter your driver email to receive a verification code'),
       findsOneWidget,
     );
   });

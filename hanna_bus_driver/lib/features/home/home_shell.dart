@@ -10,6 +10,9 @@ import '../../core/widgets/hanna_card.dart';
 import '../../core/widgets/hanna_hero_card.dart';
 import '../../core/widgets/hanna_icon.dart';
 import '../fleet/fleet_screen.dart';
+import '../profile/profile_screens.dart';
+import '../settings/settings_screens.dart';
+import '../messages/messages_screen.dart';
 import '../navigation/navigation_screen.dart';
 import '../sos/sos_screen.dart';
 import '../students/students_screen.dart';
@@ -90,8 +93,19 @@ class _HomeShellState extends State<HomeShell> {
               ),
             ),
             IconButton(
-              tooltip: s.t('appearance'),
-              onPressed: () => _appearance(context, state),
+              tooltip: s.t('messages'),
+              onPressed: () =>
+                  openDriverScreen(context, MessagesScreen(state: state)),
+              icon: Badge(
+                isLabelVisible: state.unreadCount > 0,
+                label: Text('${state.unreadCount}'),
+                child: const HannaIcon('chat-circle-text'),
+              ),
+            ),
+            IconButton(
+              tooltip: s.t('settings'),
+              onPressed: () =>
+                  openDriverScreen(context, SettingsScreen(state: state)),
               icon: const HannaIcon('gear'),
             ),
             IconButton(
@@ -106,9 +120,7 @@ class _HomeShellState extends State<HomeShell> {
           index: index,
           onTap: (i) {
             if (i == 3) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(s.t('profileDeferred'))));
+              openDriverScreen(context, ProfileScreen(state: state));
               return;
             }
             setState(() => index = i);
@@ -122,77 +134,6 @@ class _HomeShellState extends State<HomeShell> {
       );
     },
   );
-  void _appearance(BuildContext context, DriverState state) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => ListenableBuilder(
-        listenable: state,
-        builder: (context, _) {
-          final s = AppStrings.of(context);
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    s.t('appearance'),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Wrap(
-                    spacing: 12,
-                    children: [
-                      for (final language in ['en', 'ar'])
-                        ChoiceChip(
-                          label: Text(language == 'ar' ? 'العربية' : 'English'),
-                          selected: state.locale.languageCode == language,
-                          onSelected: (_) =>
-                              state.preferences(language: Locale(language)),
-                        ),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 12,
-                    children: [
-                      for (final mode in Brightness.values)
-                        ChoiceChip(
-                          label: Text(s.t(mode.name)),
-                          selected: state.brightness == mode,
-                          onSelected: (_) => state.preferences(mode: mode),
-                        ),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 12,
-                    children: [
-                      for (final palette in HannaPalette.values)
-                        ChoiceChip(
-                          label: Text(s.t(palette.name)),
-                          selected: state.palette == palette,
-                          onSelected: (_) => state.preferences(color: palette),
-                        ),
-                    ],
-                  ),
-                  DriverButton(
-                    s.t('signOut'),
-                    danger: true,
-                    onPressed: state.busy
-                        ? null
-                        : () async {
-                            if (await state.logout() && context.mounted) {
-                              Navigator.pop(context);
-                            }
-                          },
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
 }
 
 List<Widget> missionWidgets(BuildContext context, DriverState state) {
@@ -204,6 +145,11 @@ List<Widget> missionWidgets(BuildContext context, DriverState state) {
       trip?.stations.where((stop) => stop.status == 'current').firstOrNull ??
       trip?.stations.where((stop) => stop.status != 'completed').firstOrNull;
   return [
+    DriverButton(
+      '${s.t('messages')} (${state.unreadCount})',
+      secondary: true,
+      onPressed: () => openDriverScreen(context, MessagesScreen(state: state)),
+    ),
     if (state.trips.isNotEmpty)
       Wrap(
         spacing: 8,
@@ -376,7 +322,7 @@ List<Widget> missionWidgets(BuildContext context, DriverState state) {
         for (final student in state.students.where(
           (p) => station.students.any((c) => c.id == p.id),
         ))
-          StudentCard(student: student),
+          StudentCard(student: student, state: state),
       ],
       SectionTitle(s.design('home', 'sec_actions')),
       Row(

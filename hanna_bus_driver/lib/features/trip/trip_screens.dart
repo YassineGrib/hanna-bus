@@ -4,6 +4,21 @@ import '../../core/state/app_state.dart';
 import '../../core/widgets/driver_widgets.dart';
 import '../../core/widgets/hanna_card.dart';
 
+const inspectionKeys = [
+  'tires',
+  'brakes',
+  'lights',
+  'fuel',
+  'seatbelts',
+  'emergency_exit',
+  'engine_oil',
+  'coolant',
+  'washer_fluid',
+  'fire_extinguishers',
+  'first_aid_kit',
+  'mirrors',
+];
+
 class InspectionScreen extends StatefulWidget {
   const InspectionScreen({super.key, required this.state});
   final DriverState state;
@@ -12,12 +27,7 @@ class InspectionScreen extends StatefulWidget {
 }
 
 class _InspectionScreenState extends State<InspectionScreen> {
-  final items = {
-    'tires': false,
-    'brakes': false,
-    'lights': false,
-    'fuel': false,
-  };
+  final items = {for (final key in inspectionKeys) key: false};
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.state,

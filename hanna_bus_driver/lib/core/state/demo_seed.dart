@@ -1,5 +1,7 @@
 import 'models.dart';
 
+part 'phase2_demo.dart';
+
 /// A separate in-memory simulator. No offline queue or live boarding cache.
 class DemoSeed {
   final buses = <Json>[
@@ -111,6 +113,19 @@ class DemoSeed {
         },
       )
       .toList();
+  Json savedProfile = {}, savedSettings = {};
+  final messages = <Json>[
+    {
+      'id': 'message-1',
+      'direction': 'parent_to_driver',
+      'message': {
+        'en': 'Allergy reminder for today',
+        'ar': 'تذكير بالحساسية اليوم',
+      },
+      'created_at': '2026-11-21T06:40:00Z',
+      'read_at': null,
+    },
+  ];
   final events = <String, Json>{};
   bool inspected = false;
   Json get currentBus => buses.firstWhere((b) => b['is_current'] == true);
@@ -122,11 +137,26 @@ class DemoSeed {
 
   dynamic request(String method, String path, Json? body) {
     final b = body ?? {};
+    if (path.startsWith('/driver/messages') ||
+        path.startsWith('/driver/history') ||
+        path == '/driver/stats' ||
+        path == '/driver/settings' ||
+        path.startsWith('/driver/students/') ||
+        path == '/driver/contacts' ||
+        path == '/driver/telemetry/today' ||
+        path.startsWith('/driver/buses/')) {
+      return phase2(method, path, b);
+    }
     if (path == '/driver/profile') {
+      if (method == 'PUT') savedProfile.addAll(b);
       return {
         'user': {
           'name': {'en': 'Ahmed Benali', 'ar': 'أحمد بن علي'},
           'role': 'driver',
+          'phone': savedProfile['phone'] ?? '+213550123456',
+          'email': 'ahmed.benali@mail.dz',
+          'locale': savedProfile['locale'] ?? 'en',
+          if (savedProfile['name'] != null) 'name': savedProfile['name'],
         },
         'license_number': 'DZ-D-2024-0457',
         'rating': 4.9,

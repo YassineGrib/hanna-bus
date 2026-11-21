@@ -5,9 +5,12 @@ import 'package:flutter/services.dart';
 class AppStrings {
   AppStrings(this.language);
   final String language;
-  static Map<String, dynamic> _design = {};
+  static Map<String, dynamic> _design = {}, _phase2 = {};
   static Future<void> load() async {
     if (_design.isNotEmpty) return;
+    _phase2 = jsonDecode(
+      await rootBundle.loadString('assets/l10n/phase2_strings.json'),
+    );
     _design = jsonDecode(
       await rootBundle.loadString('assets/l10n/design_strings.json'),
     );
@@ -19,7 +22,8 @@ class AppStrings {
       _design[feature]?[language]?[key]?.toString() ?? '';
   List<dynamic> list(String feature, String key) =>
       _design[feature]?[language]?[key] as List? ?? [];
-  String t(String key) => _extra[key]?[language == 'ar' ? 1 : 0] ?? key;
+  String t(String key) =>
+      (_phase2[key] ?? _extra[key])?[language == 'ar' ? 1 : 0] ?? key;
   static const _extra = <String, List<String>>{
     'appName': ['Hanna Bus Driver', 'هَنّا باص للسائق'],
     'demo': [
@@ -164,10 +168,6 @@ class AppStrings {
       'School phone number is not provided by the API',
       'رقم هاتف المدرسة غير متوفر في الواجهة البرمجية',
     ],
-    'profileDeferred': [
-      'Profile will be available in the next phase',
-      'سيكون الملف الشخصي متاحًا في المرحلة القادمة',
-    ],
     'signOut': ['Sign out', 'تسجيل الخروج'],
     'appearance': ['Appearance', 'المظهر'],
     'light': ['Light', 'فاتح'],
@@ -175,10 +175,6 @@ class AppStrings {
     'mustard': ['Mustard', 'خردلي'],
     'tealGray': ['Teal Gray', 'رمادي مخضر'],
     'ocean': ['Ocean Blue', 'أزرق المحيط'],
-    'recoveryUnavailable': [
-      'Contact your fleet coordinator to recover your password',
-      'تواصل مع منسق الأسطول لاستعادة كلمة المرور',
-    ],
     'refresh': ['Refresh trip data', 'تحديث بيانات الرحلة'],
     'routeOverview': ['Route overview', 'نظرة عامة على المسار'],
     'routeHint': [

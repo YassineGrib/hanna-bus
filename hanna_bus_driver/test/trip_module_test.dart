@@ -5,20 +5,28 @@ import 'package:hanna_bus_driver/features/trip/trip_screens.dart';
 import 'helpers.dart';
 
 void main() {
-  testWidgets('inspection requires all four checks', (tester) async {
+  testWidgets('inspection requires all twelve checks', (tester) async {
     final state = await readyState();
     addTearDown(state.dispose);
     await tester.pumpWidget(host(state, InspectionScreen(state: state)));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('confirm-inspection')),
+      300,
+    );
     expect(
       tester
           .widget<DriverButton>(find.byKey(const Key('confirm-inspection')))
           .onPressed,
       isNull,
     );
-    for (final item in ['tires', 'brakes', 'lights', 'fuel']) {
+    for (final item in inspectionKeys) {
       await tapVisible(tester, find.byKey(Key('inspect-$item')));
     }
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('confirm-inspection')),
+      300,
+    );
     expect(
       tester
           .widget<DriverButton>(find.byKey(const Key('confirm-inspection')))

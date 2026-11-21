@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../network/driver_api_client.dart';
 import '../network/driver_repository.dart';
 import '../services/location_source.dart';
 import '../theme/hanna_tokens.dart';
 import 'models.dart';
+
+part 'phase2_state.dart';
 
 class DriverState extends ChangeNotifier with WidgetsBindingObserver {
   DriverState({DriverRepository? repository, LocationSource? location})
@@ -19,6 +23,13 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
   bool authenticated = false, busy = false, ready = false;
   String? error, notice, locationIssue;
   Json profile = {};
+  Json settings = Map.of(defaultDriverSettings), contacts = {};
+  List<Json> inbox = [];
+  String brightnessMode = 'light';
+  int get unreadCount => inbox.fold(
+    0,
+    (sum, item) => sum + ((item['unread_count'] as num?)?.toInt() ?? 0),
+  );
   List<DriverBus> _buses = [];
   List<DriverTrip> _trips = [];
   List<Student> _students = [];
@@ -52,6 +63,20 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
     brightness = prefs.getBool('driver_dark') == true
         ? Brightness.dark
         : Brightness.light;
+    settings = {
+      ...settings,
+      'theme_palette': palette.apiValue,
+      'brightness_mode': brightness.name,
+    };
+    final stored = prefs.getString('driver_settings');
+    if (stored != null) {
+      try {
+        settings.addAll(Map<String, dynamic>.from(jsonDecode(stored)));
+      } on FormatException {
+        /* Keep defaults. */
+      }
+    }
+    _applySettings();
     repository.api.language = locale.languageCode;
     WidgetsBinding.instance.addObserver(this);
     ready = true;
@@ -72,7 +97,18 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
     await prefs.setString('driver_language', locale.languageCode);
     await prefs.setString('driver_palette', palette.apiValue);
     await prefs.setBool('driver_dark', brightness == Brightness.dark);
-    if (authenticated) await run(refresh);
+    if (authenticated) {
+      if (language != null) {
+        await updateProfile({'locale': locale.languageCode});
+      }
+      if (color != null || mode != null) {
+        await saveSettings({
+          if (color != null) 'theme_palette': color.apiValue,
+          if (mode != null) 'brightness_mode': mode.name,
+        });
+      }
+      await run(refresh);
+    }
   }
 
   void _notify() {
@@ -114,6 +150,7 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
     await repository.login(email, password);
     await refresh();
     authenticated = true;
+    await loadPhase2();
     _syncLocation();
   });
   Future<void> refresh() async {
@@ -163,6 +200,7 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
         !['tires', 'brakes', 'lights', 'fuel'].every((k) => items[k] == true)) {
       throw const ApiFailure(422);
     }
+    if (items.values.any((checked) => !checked)) throw const ApiFailure(422);
     await repository.request('POST', '/driver/inspections', {
       'bus_id': currentBus!.id,
       'items': items,
@@ -257,6 +295,8 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
     _students = [];
     _buses = [];
     profile = {};
+    inbox = [];
+    contacts = {};
     _inspectedBus = null;
     lastPosition = null;
   });
@@ -299,6 +339,9 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
         'heading': p.heading,
       });
       lastPosition = p;
+      if (settings['speed_chime'] == true && p.speedKmh > 60) {
+        unawaited(SystemSound.play(SystemSoundType.alert));
+      }
       if (locationIssue != null) {
         locationIssue = null;
         _notify();
@@ -313,6 +356,14 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
       }
     } finally {
       _sendingLocation = false;
+    }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (brightnessMode == 'auto') {
+      _applySettings();
+      _notify();
     }
   }
 
