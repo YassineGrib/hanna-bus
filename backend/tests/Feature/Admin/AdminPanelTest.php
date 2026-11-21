@@ -178,6 +178,26 @@ class AdminPanelTest extends TestCase
         $this->assertSame(['created' => 0, 'skipped' => 0], app(CarryOverAssignments::class)->handle(CarbonImmutable::parse('2026-11-18')));
     }
 
+    public function test_carry_over_copies_from_the_latest_earlier_day_with_assignments(): void
+    {
+        $this->admin();
+        $driver = User::factory()->create(['role' => 'driver']);
+        BusAssignment::create(['bus_id' => $this->bus()->id, 'driver_id' => $driver->id, 'date' => '2026-11-19']);
+
+        // Monday: the previous day (Sunday) and the weekend have nothing, Thursday does.
+        $carry = app(CarryOverAssignments::class);
+        $this->assertSame('2026-11-19', $carry->sourceDate(CarbonImmutable::parse('2026-11-23'))?->toDateString());
+        $this->assertNull($carry->sourceDate(CarbonImmutable::parse('2026-11-19')));
+
+        Livewire::test(DailyPlanning::class)->set('date', '2026-11-23')->callAction('carryOver')
+            ->assertNotified(__('admin.operation_result', ['created' => 1, 'skipped' => 0]));
+        $this->assertDatabaseHas('bus_assignments', ['driver_id' => $driver->id, 'date' => '2026-11-23']);
+
+        // With nothing earlier the admin is told why instead of seeing "Created 0".
+        Livewire::test(DailyPlanning::class)->set('date', '2026-11-18')->callAction('carryOver')
+            ->assertNotified(__('admin.carry_over_none'));
+    }
+
     public function test_generate_trips_action_uses_selected_date_and_reports_counts(): void
     {
         $this->seed(ParentPortalDemoSeeder::class);

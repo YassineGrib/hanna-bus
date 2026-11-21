@@ -11,6 +11,8 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Tables\Filters\SelectFilter;
@@ -34,7 +36,48 @@ class StudentResource extends AdminResource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([static::input('full_name'), static::input('student_code')->unique(ignoreRecord: true), static::userSelect('parent_id', 'parent', 'parent'), Select::make('bus_number')->label(__('admin.bus_number'))->options(fn (): array => Bus::orderBy('number')->pluck('number', 'number')->all())->searchable()->required(), Select::make('transit_status')->label(__('admin.transit_status'))->options(static::options(['on_bus', 'at_school', 'at_home', 'absent']))->default('at_home')->required(), Select::make('stage')->label(__('admin.stage'))->options(static::options(['preschool', 'primary', 'middle', 'secondary']))->required(), static::input('birth_date'), static::input('national_id'), static::input('school_name'), static::input('grade'), static::input('class_room'), static::input('homeroom_teacher'), static::input('transport_coordinator'), static::input('dismissal_rule'), static::input('seat_number'), static::input('stop_name'), static::input('stop_time'), static::input('return_time'), static::input('blood_type'), static::input('insurance_number'), static::input('allergies'), static::input('chronic_conditions'), static::input('pediatrician_name'), static::input('pediatrician_phone'), static::input('avatar_preset'), Textarea::make('first_aid_protocol')->label(__('admin.first_aid_protocol'))->maxLength(10000), KeyValue::make('schedule_json')->label(__('admin.schedule_json')), View::make('filament.student-qr')->visibleOn('view')]);
+        return $schema->components([
+            Section::make(__('admin.student_essentials'))->columns(2)->columnSpanFull()->schema([
+                static::input('full_name'),
+                static::input('student_code')->unique(ignoreRecord: true),
+                static::userSelect('parent_id', 'parent', 'parent'),
+                Select::make('bus_number')->label(__('admin.bus_number'))->options(fn (): array => Bus::orderBy('number')->pluck('number', 'number')->all())->searchable()->required(),
+                Select::make('stage')->label(__('admin.stage'))->options(static::options(['preschool', 'primary', 'middle', 'secondary']))->required(),
+                static::input('school_name'),
+                static::input('grade'),
+                static::input('birth_date'),
+                static::input('national_id'),
+                static::input('stop_name'),
+                static::input('stop_time'),
+                static::input('return_time'),
+                Select::make('transit_status')->label(__('admin.transit_status'))->options(static::options(['on_bus', 'at_school', 'at_home', 'absent']))->default('at_home')->required(),
+            ]),
+            Section::make(__('admin.student_school_details'))->columns(2)->columnSpanFull()->collapsed()->schema([
+                static::optionalInput('class_room'),
+                static::optionalInput('homeroom_teacher'),
+                static::optionalInput('transport_coordinator'),
+                static::optionalInput('dismissal_rule'),
+                static::optionalInput('seat_number'),
+                static::optionalInput('avatar_preset')->default('student_1'),
+                KeyValue::make('schedule_json')->label(__('admin.schedule_json')),
+            ]),
+            Section::make(__('admin.student_medical'))->columns(2)->columnSpanFull()->collapsed()->schema([
+                static::optionalInput('blood_type'),
+                static::optionalInput('insurance_number'),
+                static::optionalInput('allergies'),
+                static::optionalInput('chronic_conditions'),
+                static::optionalInput('pediatrician_name'),
+                static::optionalInput('pediatrician_phone'),
+                Textarea::make('first_aid_protocol')->label(__('admin.first_aid_protocol'))->maxLength(10000)->columnSpanFull(),
+            ]),
+            View::make('filament.student-qr')->visibleOn('view'),
+        ]);
+    }
+
+    /** An optional text field; empty input is stored as empty text because the columns are not nullable. */
+    private static function optionalInput(string $name): TextInput
+    {
+        return static::input($name, false)->dehydrateStateUsing(fn (?string $state): string => $state ?? '');
     }
 
     public static function table(Table $table): Table

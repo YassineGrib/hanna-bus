@@ -8,12 +8,23 @@ use Illuminate\Support\Facades\DB;
 
 class CarryOverAssignments
 {
+    /**
+     * The most recent day before $date that has assignments. Looking for the latest day with
+     * data (not just yesterday) keeps carry over working after weekends and holidays.
+     */
+    public function sourceDate(CarbonImmutable $date): ?CarbonImmutable
+    {
+        $latest = BusAssignment::whereDate('date', '<', $date->toDateString())->max('date');
+
+        return $latest === null ? null : CarbonImmutable::parse($latest)->startOfDay();
+    }
+
     /** @return array{created: int, skipped: int} */
     public function handle(CarbonImmutable $date): array
     {
-        $previous = $date->subDay();
-        while (in_array($previous->dayOfWeek, [5, 6], true)) {
-            $previous = $previous->subDay();
+        $previous = $this->sourceDate($date);
+        if ($previous === null) {
+            return ['created' => 0, 'skipped' => 0];
         }
 
         return DB::transaction(function () use ($previous, $date): array {

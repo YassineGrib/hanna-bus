@@ -60,7 +60,23 @@ class DailyPlanning extends Page implements HasTable
     {
         abort_unless(static::canAccess(), 403);
         $this->validate(['date' => ['required', 'date_format:Y-m-d']]);
-        $this->notifyResult(app(CarryOverAssignments::class)->handle(CarbonImmutable::parse($this->date)));
+        $carryOver = app(CarryOverAssignments::class);
+        $target = CarbonImmutable::parse($this->date);
+        $source = $carryOver->sourceDate($target);
+
+        if ($source === null) {
+            Notification::make()->title(__('admin.carry_over_none'))->warning()->send();
+
+            return;
+        }
+
+        $counts = $carryOver->handle($target);
+        Notification::make()
+            ->title(__('admin.operation_result', $counts))
+            ->body(__('admin.carry_over_from', ['date' => $source->toDateString()]))
+            ->success()
+            ->send();
+        $this->resetTable();
     }
 
     public function generateTrips(): void

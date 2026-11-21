@@ -20,14 +20,17 @@ abstract class AdminResource extends Resource
 
     protected const READ_ONLY = false;
 
+    /** Singular label (for titles such as "Create Bus"); falls back to the plural when no `_one` key exists. */
     public static function getModelLabel(): string
     {
-        return __('admin.'.static::LABEL);
+        $singular = 'admin.'.static::LABEL.'_one';
+
+        return trans()->has($singular) ? __($singular) : static::getPluralModelLabel();
     }
 
     public static function getPluralModelLabel(): string
     {
-        return static::getModelLabel();
+        return __('admin.'.static::LABEL);
     }
 
     public static function getAuthorizationResponse(string|UnitEnum $action, ?Model $record = null): Response
