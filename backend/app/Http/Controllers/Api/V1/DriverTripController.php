@@ -150,7 +150,11 @@ class DriverTripController extends Controller
             $start = $owned->started_at ?? $end;
             $events = $owned->boardingEvents()->with('child')->get();
             foreach ($events->where('type', 'boarded')->unique('child_id') as $event) {
-                TripHistory::create(['id' => (string) Str::uuid(), 'trip_id' => $owned->id, 'child_id' => $event->child_id,
+                $history = TripHistory::firstOrNew(['trip_id' => $owned->id, 'child_id' => $event->child_id]);
+                if (! $history->exists) {
+                    $history->id = (string) Str::uuid();
+                }
+                $history->fill([
                     'bus_number' => $owned->bus_number, 'period' => $owned->is_morning ? 'morning' : 'return',
                     'trip_date' => $start->toDateString(), 'date_group_en' => $start->toDateString(),
                     'date_group_ar' => $start->toDateString(), 'date_group_fr' => $start->toDateString(),
@@ -162,7 +166,7 @@ class DriverTripController extends Controller
                     'vehicle_model' => $owned->vehicle_model, 'route_points_json' => $owned->route_points_json,
                     'qr_audit_json' => $events->where('child_id', $event->child_id)->map(fn ($e) => [
                         'time' => $e->recorded_at->toISOString(), 'event' => $e->type, 'verifier' => $request->user()->name])->values()->all(),
-                ]);
+                ])->save();
             }
             $owned->update(['status' => 'completed', 'ended_at' => $end]);
             $request->user()->driverProfile()->increment('trips_count');

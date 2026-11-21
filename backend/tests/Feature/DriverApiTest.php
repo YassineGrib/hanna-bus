@@ -274,6 +274,20 @@ class DriverApiTest extends TestCase
         $this->postJson('/api/v1/driver/trips/return/boarding', [...$body, 'type' => 'alighted'])->assertCreated()->assertJsonPath('child.transit_status', 'at_home');
     }
 
+    public function test_end_reuses_an_existing_history_row_instead_of_failing(): void
+    {
+        $this->inspection();
+        $this->asDriver()->postJson('/api/v1/driver/trips/trip-04/start')->assertOk();
+        $this->postJson('/api/v1/driver/trips/trip-04/boarding', ['student_code' => 'HB-304', 'type' => 'boarded', 'method' => 'qr'])->assertCreated();
+        $this->postJson('/api/v1/driver/trips/trip-04/end', ['safety_walk_confirmed' => true])->assertOk();
+        $firstId = TripHistory::first()->id;
+        // A trip that is restarted and ended again must update its history row, not violate the unique key.
+        $this->trip->fresh()->update(['status' => 'en_route', 'ended_at' => null]);
+        $this->postJson('/api/v1/driver/trips/trip-04/end', ['safety_walk_confirmed' => true])->assertOk();
+        $this->assertDatabaseCount('trip_histories', 1);
+        $this->assertSame($firstId, TripHistory::first()->id);
+    }
+
     public function test_end_creates_histories_once_and_history_stats_are_driver_scoped(): void
     {
         $this->inspection();
