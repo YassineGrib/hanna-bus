@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -75,6 +76,7 @@ class RouteResource extends AdminResource
                     static::input('scheduled_time'),
                     static::coordinate('lat')->helperText(__('admin.coordinates_help')),
                     static::coordinate('lng'),
+                    ViewField::make('location')->view('filament.location-picker')->dehydrated(false)->columnSpanFull(),
                 ])->columns(3)->columnSpanFull(),
             Section::make(__('admin.advanced_route_points'))->collapsible()->collapsed()->schema([
                 Repeater::make('route_points_json')->label(__('admin.route_points_json'))

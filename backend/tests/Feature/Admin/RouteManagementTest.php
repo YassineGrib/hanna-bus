@@ -64,6 +64,19 @@ class RouteManagementTest extends TestCase
         return $route;
     }
 
+    public function test_station_form_offers_map_picker_without_saving_a_location_column(): void
+    {
+        $this->admin();
+        $route = $this->route();
+
+        Livewire::test(EditRoute::class, ['record' => $route->id])
+            ->assertSee('hanna-location-picker', false)
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->assertSame([36.75, 36.76], $route->stations()->orderBy('sort_order')->pluck('lat')->map(fn ($lat): float => (float) $lat)->all());
+    }
+
     public function test_admin_creates_route_with_ordered_stations_and_translation_fallback(): void
     {
         $this->admin();
