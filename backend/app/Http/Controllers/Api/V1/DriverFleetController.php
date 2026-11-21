@@ -27,7 +27,37 @@ class DriverFleetController extends Controller
 
         return response()->json(['user' => $request->user(), 'license_number' => $profile?->license_number,
             'rating' => $profile?->rating ?? 4.9, 'trips_count' => $profile?->trips_count ?? 0,
-            'current_bus' => $this->currentBus($request)]);
+            'current_bus' => $this->currentBus($request),
+            'school' => config('hanna.school'), 'coordinator' => config('hanna.coordinator')]);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $v = $request->validate(['name' => ['sometimes', 'string', 'max:120'],
+            'phone' => ['sometimes', 'string', 'max:40'], 'locale' => ['sometimes', 'in:en,ar']]);
+        $request->user()->update($v);
+
+        return $this->profile($request);
+    }
+
+    public function showBus(Request $request, string $bus): JsonResponse
+    {
+        $vehicle = Bus::where(function ($q) use ($request) {
+            $q->whereHas('assignments', fn ($q) => $q->where('driver_id', $request->user()->id)->whereDate('date', today()))
+                ->orWhereHas('trips', fn ($q) => $q->where('driver_id', $request->user()->id));
+        })->find($bus);
+        abort_unless($vehicle, 404, Trilingual::pick(Trilingual::lang($request),
+            'Bus not found.', 'لم يتم العثور على الحافلة.', 'Bus introuvable.'));
+        $inspection = BusInspection::where('driver_id', $request->user()->id)->where('bus_id', $vehicle->id)
+            ->latest('date')->latest('created_at')->orderByDesc('id')->first();
+
+        return response()->json([
+            ...$vehicle->only(['id', 'number', 'line_name', 'plate_number', 'vehicle_model', 'capacity', 'status']),
+            'insurance_expires_on' => $vehicle->insurance_expires_on?->toDateString(),
+            'technical_control_expires_on' => $vehicle->technical_control_expires_on?->toDateString(),
+            'last_service_on' => $vehicle->last_service_on?->toDateString(),
+            'last_inspection' => $inspection ? ['date' => $inspection->date->toDateString(), 'passed' => $inspection->passed] : null,
+        ]);
     }
 
     public function buses(Request $request): JsonResponse

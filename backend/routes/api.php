@@ -9,7 +9,10 @@ use App\Http\Controllers\Api\V1\DriverBoardingController;
 use App\Http\Controllers\Api\V1\DriverFleetController;
 use App\Http\Controllers\Api\V1\DriverHistoryController;
 use App\Http\Controllers\Api\V1\DriverMessageController;
+use App\Http\Controllers\Api\V1\DriverSettingsController;
 use App\Http\Controllers\Api\V1\DriverSosController;
+use App\Http\Controllers\Api\V1\DriverStudentController;
+use App\Http\Controllers\Api\V1\DriverTelemetryController;
 use App\Http\Controllers\Api\V1\DriverTripController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\SettingsController;
@@ -26,7 +29,7 @@ Route::get('/health', function () {
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
@@ -66,12 +69,20 @@ Route::middleware(['auth:sanctum', 'role:parent'])->prefix('parent')->group(func
     Route::get('/bulletins', [BulletinSupportController::class, 'bulletins']);
     Route::post('/support/messages', [BulletinSupportController::class, 'storeMessage']);
     Route::get('/support/messages', [BulletinSupportController::class, 'messages']);
+    Route::put('/support/messages/{id}/read', [BulletinSupportController::class, 'markMessageRead']);
 });
 
-Route::post('/driver/auth/login', [DriverAuthController::class, 'login']);
+Route::post('/driver/auth/login', [DriverAuthController::class, 'login'])->middleware('throttle:login');
 Route::middleware(['auth:sanctum', 'role:driver'])->prefix('driver')->group(function () {
     Route::get('/profile', [DriverFleetController::class, 'profile']);
+    Route::put('/profile', [DriverFleetController::class, 'updateProfile']);
+    Route::get('/settings', [DriverSettingsController::class, 'show']);
+    Route::put('/settings', [DriverSettingsController::class, 'update']);
+    Route::get('/contacts', [DriverSettingsController::class, 'contacts']);
+    Route::get('/students/{child}', [DriverStudentController::class, 'show']);
+    Route::get('/telemetry/today', [DriverTelemetryController::class, 'today']);
     Route::get('/buses', [DriverFleetController::class, 'buses']);
+    Route::get('/buses/{bus}', [DriverFleetController::class, 'showBus']);
     Route::get('/rotation', [DriverFleetController::class, 'rotation']);
     Route::put('/bus', [DriverFleetController::class, 'updateBus']);
     Route::post('/inspections', [DriverFleetController::class, 'inspection']);

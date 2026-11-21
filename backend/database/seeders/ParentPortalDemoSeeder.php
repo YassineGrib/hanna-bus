@@ -340,6 +340,7 @@ class ParentPortalDemoSeeder extends Seeder
         foreach ([[$driver, 'DZ-D-2024-0457'], [$other, 'DZ-D-2024-0458']] as [$user, $license]) {
             DriverProfile::updateOrCreate(['user_id' => $user->id], [
                 'license_number' => $license, 'rating' => 4.9, 'trips_count' => 0,
+                'settings_json' => config('hanna.driver_settings'),
             ]);
         }
         foreach (['04' => 'in_service', '07' => 'available', '11' => 'in_service', '02' => 'workshop'] as $number => $status) {
@@ -347,6 +348,9 @@ class ParentPortalDemoSeeder extends Seeder
             Bus::updateOrCreate(['id' => 'bus-'.$number], [
                 'number' => $number, 'line_name' => 'Route '.$number, 'plate_number' => $number.'821-116',
                 'vehicle_model' => 'Mercedes Sprinter', 'capacity' => 24, 'status' => $status,
+                'insurance_expires_on' => today()->addYear()->toDateString(),
+                'technical_control_expires_on' => today()->addMonths(6)->toDateString(),
+                'last_service_on' => today()->subMonth()->toDateString(),
             ]);
         }
         foreach ([[$driver, '04'], [$other, '11']] as [$user, $number]) {

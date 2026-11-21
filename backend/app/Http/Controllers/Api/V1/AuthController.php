@@ -54,6 +54,7 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             $lang = Trilingual::lang($request);
+
             return response()->json([
                 'message' => Trilingual::pick(
                     $lang,
@@ -123,6 +124,7 @@ class AuthController extends Controller
 
         if (! $record || ($record->code !== $validated['code'] && ! $isLocalMagic)) {
             $lang = Trilingual::lang($request);
+
             return response()->json([
                 'message' => Trilingual::pick(
                     $lang,
@@ -156,10 +158,12 @@ class AuthController extends Controller
         $record = ParentOtpCode::where('email', $validated['email'])
             ->where('reset_token', $validated['reset_token'])
             ->whereNotNull('verified_at')
+            ->where('expires_at', '>', now())
             ->first();
 
         if (! $record) {
-            return response()->json(['message' => 'Invalid reset session.'], 422);
+            return response()->json(['message' => Trilingual::pick(Trilingual::lang($request),
+                'Invalid reset session.', 'جلسة إعادة التعيين غير صالحة.', 'Session de réinitialisation invalide.')], 422);
         }
 
         $user = User::where('email', $validated['email'])->firstOrFail();
@@ -167,7 +171,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $record->delete();
 
-        $token = $user->createToken('hanna-parent')->plainTextToken;
+        $token = $user->createToken($user->role === 'driver' ? 'hanna-driver' : 'hanna-parent')->plainTextToken;
 
         return response()->json([
             'token' => $token,

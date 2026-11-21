@@ -11,6 +11,7 @@ use App\Support\DriverPortal;
 use App\Support\Trilingual;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -35,8 +36,8 @@ class DriverTripController extends Controller
                     'scheduled_time' => $s->scheduled_time, 'status' => $s->status,
                     'lat' => $s->lat, 'lng' => $s->lng,
                     'students' => $children->filter(fn ($c) => DriverPortal::station($trip, $c)?->id === $s->id)
-                        ->map(fn ($c) => ['child_id' => $c->id, 'name' => $c->full_name,
-                            'student_code' => $c->student_code, 'absent' => DriverPortal::absent($c)])->values(),
+                        ->map(fn ($c) => ['child_id' => $c->id,
+                            ...Arr::only(DriverPortal::childObject($c), ['name', 'student_code', 'absent'])])->values(),
                 ])->values()];
         }));
     }
@@ -102,7 +103,9 @@ class DriverTripController extends Controller
         $owned = DriverPortal::trip($request, $trip);
         $stop = $owned->stations()->findOrFail($station);
 
-        return DB::transaction(function () use ($owned, $stop) {
+        return DB::transaction(function () use ($request, $owned, $stop) {
+            $owned = ActiveTrip::where('driver_id', $request->user()->id)->whereKey($owned->id)->lockForUpdate()->firstOrFail();
+            DriverPortal::requireEnRoute($request, $owned);
             $owned->stations()->where('sort_order', '<', $stop->sort_order)->update(['status' => 'completed']);
             $owned->stations()->where('sort_order', '>', $stop->sort_order)->update(['status' => 'upcoming']);
             $stop->update(['status' => 'current']);
@@ -116,10 +119,13 @@ class DriverTripController extends Controller
     public function delay(Request $request, string $trip): JsonResponse
     {
         $owned = DriverPortal::trip($request, $trip);
+        DriverPortal::requireEnRoute($request, $owned);
         $v = $request->validate(['minutes' => ['required', 'integer', 'between:1,120'],
             'reason' => ['required', 'in:traffic,breakdown,weather,other']]);
 
-        return DB::transaction(function () use ($owned, $v) {
+        return DB::transaction(function () use ($request, $owned, $v) {
+            $owned = ActiveTrip::where('driver_id', $request->user()->id)->whereKey($owned->id)->lockForUpdate()->firstOrFail();
+            DriverPortal::requireEnRoute($request, $owned);
             $owned->increment('eta_minutes', $v['minutes']);
             $owned->increment('delay_minutes', $v['minutes']);
             $n = DriverPortal::notify(DriverPortal::children($owned), [
@@ -132,13 +138,14 @@ class DriverTripController extends Controller
     public function end(Request $request, string $trip): JsonResponse
     {
         $owned = DriverPortal::trip($request, $trip);
-        $request->validate(['safety_walk_confirmed' => ['required', 'boolean', 'accepted']]);
 
         return DB::transaction(function () use ($owned, $request) {
             $owned = ActiveTrip::where('driver_id', $request->user()->id)->whereKey($owned->id)->lockForUpdate()->firstOrFail();
             if ($owned->status === 'completed') {
                 return response()->json($owned);
             }
+            DriverPortal::requireEnRoute($request, $owned);
+            $request->validate(['safety_walk_confirmed' => ['required', 'boolean', 'accepted']]);
             $end = now();
             $start = $owned->started_at ?? $end;
             $events = $owned->boardingEvents()->with('child')->get();

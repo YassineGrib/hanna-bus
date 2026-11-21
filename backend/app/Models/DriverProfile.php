@@ -15,6 +15,7 @@ class DriverProfile extends Model
         'license_number',
         'rating',
         'trips_count',
+        'settings_json',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class DriverProfile extends Model
         return [
             'rating' => 'float',
             'trips_count' => 'integer',
+            'settings_json' => 'array',
         ];
     }
 

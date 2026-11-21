@@ -10,13 +10,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class DriverMessageController extends Controller
 {
     private function query(Request $request): Builder
     {
-        return SupportMessage::with(['parent', 'child'])->where('driver_id', $request->user()->id)
+        return SupportMessage::with(['parent', 'child.absenceReports'])->where('driver_id', $request->user()->id)
             ->whereIn('child_id', DriverPortal::accessibleChildren($request)->select('id'));
     }
 
@@ -29,7 +30,7 @@ class DriverMessageController extends Controller
             $last = $messages->first();
 
             return ['parent' => $last->parent->only(['id', 'name']),
-                'child' => ['id' => $last->child->id, 'name' => $last->child->full_name, 'stop_name' => $last->child->stop_name],
+                'child' => Arr::only(DriverPortal::childObject($last->child), ['id', 'name', 'stop_name']),
                 'last_message' => $last->message, 'last_at' => $last->created_at->toISOString(),
                 'unread_count' => $messages->where('direction', 'parent_to_driver')->whereNull('read_at')->count(),
                 'is_urgent' => $messages->contains(fn ($m) => $m->isUrgent())];
@@ -38,7 +39,7 @@ class DriverMessageController extends Controller
 
     private function child(Request $request, string $parent, string $child): Child
     {
-        return DriverPortal::accessibleChildren($request)->with('parent')->where('parent_id', $parent)->findOrFail($child);
+        return DriverPortal::accessibleChildren($request)->with(['parent', 'absenceReports'])->where('parent_id', $parent)->findOrFail($child);
     }
 
     public function show(Request $request, string $parent): JsonResponse
@@ -49,7 +50,7 @@ class DriverMessageController extends Controller
         (clone $query)->where('direction', 'parent_to_driver')->whereNull('read_at')->update(['read_at' => now()]);
 
         return response()->json(['parent' => $child->parent->only(['id', 'name']),
-            'child' => ['id' => $child->id, 'name' => $child->full_name, 'stop_name' => $child->stop_name],
+            'child' => Arr::only(DriverPortal::childObject($child), ['id', 'name', 'stop_name']),
             'messages' => $query->oldest()->orderBy('id')->get()->map(fn ($m) => $m->threadItem())]);
     }
 

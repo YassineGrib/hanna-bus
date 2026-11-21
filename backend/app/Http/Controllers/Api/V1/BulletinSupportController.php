@@ -72,4 +72,16 @@ class BulletinSupportController extends Controller
 
         return response()->json($query->oldest()->orderBy('id')->get()->map(fn ($m) => $m->threadItem()));
     }
+
+    public function markMessageRead(Request $request, string $id): JsonResponse
+    {
+        $message = SupportMessage::where('parent_id', $request->user()->id)->find($id);
+        abort_unless($message, 404, Trilingual::pick(Trilingual::lang($request),
+            'Message not found.', 'لم يتم العثور على الرسالة.', 'Message introuvable.'));
+        if (! $message->read_at) {
+            $message->update(['read_at' => now()]);
+        }
+
+        return response()->json($message->threadItem());
+    }
 }

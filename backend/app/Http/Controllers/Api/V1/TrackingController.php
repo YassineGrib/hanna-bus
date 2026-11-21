@@ -15,6 +15,8 @@ class TrackingController extends Controller
     public function getActiveTrip(Request $request): JsonResponse
     {
         $lang = Trilingual::lang($request);
+        abort_unless($request->user()->children()->exists(), 404, Trilingual::pick($lang,
+            'No children linked to this account.', 'لا يوجد أطفال مرتبطون بهذا الحساب.', 'Aucun enfant lié à ce compte.'));
         $childId = $request->query('child_id');
         $busNumber = $request->query('bus_number');
 

@@ -91,6 +91,8 @@ class DriverApiTest extends TestCase
             ['POST', 'trips/trip-04/stations/1/arrive'], ['POST', 'trips/trip-04/delay'], ['POST', 'trips/trip-04/end'],
             ['GET', 'trips/trip-04/students'], ['POST', 'trips/trip-04/boarding'], ['GET', 'messages'],
             ['GET', 'messages/1?child_id=child-1'], ['POST', 'messages/1'], ['GET', 'history'], ['GET', 'stats'], ['POST', 'sos'],
+            ['GET', 'students/child-1'], ['PUT', 'profile'], ['GET', 'settings'], ['PUT', 'settings'],
+            ['GET', 'contacts'], ['GET', 'telemetry/today'], ['GET', 'buses/bus-04'],
         ];
     }
 
@@ -219,6 +221,7 @@ class DriverApiTest extends TestCase
 
     public function test_arrival_delay_notifications_and_validation(): void
     {
+        $this->trip->update(['status' => 'en_route']);
         $next = $this->station->replicate();
         $next->sort_order = 2;
         $next->name_en = 'School';
@@ -241,6 +244,7 @@ class DriverApiTest extends TestCase
 
     public function test_boarding_idempotency_absence_bus_membership_and_alighting(): void
     {
+        $this->trip->update(['status' => 'en_route']);
         $body = ['student_code' => 'HB-304', 'type' => 'boarded', 'method' => 'qr', 'driver_id' => 999];
         $this->asDriver()->postJson('/api/v1/driver/trips/trip-04/boarding', [...$body, 'student_code' => 'unknown'])->assertNotFound();
         $this->child->update(['bus_number' => '11']);

@@ -18,12 +18,18 @@ class Bus extends Model
         'vehicle_model',
         'capacity',
         'status',
+        'insurance_expires_on',
+        'technical_control_expires_on',
+        'last_service_on',
     ];
 
     protected function casts(): array
     {
         return [
             'capacity' => 'integer',
+            'insurance_expires_on' => 'date:Y-m-d',
+            'technical_control_expires_on' => 'date:Y-m-d',
+            'last_service_on' => 'date:Y-m-d',
         ];
     }
 

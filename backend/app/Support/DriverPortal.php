@@ -13,6 +13,27 @@ use Illuminate\Http\Request;
 
 class DriverPortal
 {
+    public const CHILD_COLUMNS = [
+        'id', 'parent_id', 'full_name', 'student_code', 'grade', 'stop_name', 'stop_time',
+        'bus_number', 'seat_number', 'transit_status', 'avatar_preset', 'dismissal_rule',
+    ];
+
+    public static function childObject(Child $child): array
+    {
+        return [
+            ...$child->only(['id', 'student_code', 'grade', 'stop_name', 'stop_time', 'bus_number',
+                'seat_number', 'transit_status', 'avatar_preset', 'dismissal_rule']),
+            'name' => $child->full_name,
+            'absent' => self::absent($child),
+        ];
+    }
+
+    public static function requireEnRoute(Request $request, ActiveTrip $trip): void
+    {
+        abort_unless($trip->status === 'en_route', 409, Trilingual::pick(Trilingual::lang($request),
+            'Trip is not en route.', 'الرحلة ليست جارية.', 'Le trajet n’est pas en cours.'));
+    }
+
     public static function trip(Request $request, string $id): ActiveTrip
     {
         return ActiveTrip::where('driver_id', $request->user()->id)->findOrFail($id);
@@ -20,7 +41,7 @@ class DriverPortal
 
     public static function children(ActiveTrip $trip): Collection
     {
-        return Child::with(['absenceReports' => fn ($q) => $q->whereDate('absence_date', today())])
+        return Child::select(self::CHILD_COLUMNS)->with(['absenceReports' => fn ($q) => $q->whereDate('absence_date', today())])
             ->where('bus_number', $trip->bus_number)->get();
     }
 

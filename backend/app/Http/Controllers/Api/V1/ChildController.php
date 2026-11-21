@@ -171,6 +171,7 @@ class ChildController extends Controller
             }
 
             $existing->update(['parent_id' => $request->user()->id]);
+
             return new ChildResource($existing->fresh());
         }
 
