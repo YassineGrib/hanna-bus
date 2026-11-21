@@ -24,6 +24,12 @@ class DriverResource extends AdminResource
 
     protected const LABEL = 'drivers';
 
+    protected const GROUP = 'nav_fleet';
+
+    protected const ICON = 'identification';
+
+    protected const SORT = 3;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder

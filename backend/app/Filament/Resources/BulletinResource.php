@@ -22,6 +22,12 @@ class BulletinResource extends AdminResource
 
     protected const LABEL = 'bulletins';
 
+    protected const GROUP = 'nav_communication';
+
+    protected const ICON = 'megaphone';
+
+    protected const SORT = 1;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder

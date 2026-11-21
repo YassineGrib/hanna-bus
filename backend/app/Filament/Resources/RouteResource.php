@@ -31,6 +31,12 @@ class RouteResource extends AdminResource
 
     protected const LABEL = 'routes';
 
+    protected const GROUP = 'nav_fleet';
+
+    protected const ICON = 'map-pin';
+
+    protected const SORT = 2;
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('bus')->withCount('stations');

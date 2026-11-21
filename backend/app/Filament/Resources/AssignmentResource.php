@@ -24,6 +24,12 @@ class AssignmentResource extends AdminResource
 
     protected const LABEL = 'assignments';
 
+    protected const GROUP = 'nav_operations';
+
+    protected const ICON = 'clipboard-document-list';
+
+    protected const SORT = 2;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder

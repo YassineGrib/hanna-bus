@@ -22,6 +22,12 @@ class SupportMessageResource extends AdminResource
 
     protected const LABEL = 'support_messages';
 
+    protected const GROUP = 'nav_communication';
+
+    protected const ICON = 'chat-bubble-left-right';
+
+    protected const SORT = 2;
+
     protected const READ_ONLY = true;
 
     public static function getEloquentQuery(): Builder

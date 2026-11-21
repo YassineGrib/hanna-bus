@@ -11,6 +11,7 @@ use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -32,6 +33,21 @@ class DailyPlanning extends Page implements HasTable
     public static function getNavigationLabel(): string
     {
         return __('admin.daily_planning');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('admin.nav_operations');
+    }
+
+    public static function getNavigationIcon(): Heroicon
+    {
+        return Heroicon::OutlinedCalendarDays;
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
     }
 
     public function getTitle(): string

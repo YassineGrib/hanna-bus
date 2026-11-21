@@ -12,14 +12,28 @@
     {{ $this->table }}
     <x-filament::section :heading="__('admin.trips')">
         @if ($routeWarnings)
-            <div role="alert">
-                <p>{{ __('admin.missing_routes') }}</p>
-                <ul>
-                    @foreach ($routeWarnings as $warning)
-                        <li>{{ $warning }}</li>
-                    @endforeach
-                </ul>
-                <a href="{{ \App\Filament\Resources\RouteResource::getUrl('index') }}">{{ __('admin.routes') }}</a>
+            <div
+                role="alert"
+                style="display:flex;gap:.75rem;align-items:flex-start;padding:.85rem 1rem;margin-bottom:1rem;border:1px solid rgba(217,119,6,.45);background:rgba(245,158,11,.12);border-radius:.75rem"
+            >
+                <x-filament::icon
+                    icon="heroicon-o-exclamation-triangle"
+                    style="width:1.35rem;height:1.35rem;flex-shrink:0;color:#d97706"
+                />
+                <div>
+                    <p style="font-weight:600;margin-bottom:.25rem">{{ __('admin.missing_routes') }}</p>
+                    <ul style="margin:0;padding-inline-start:1.1rem;list-style:disc">
+                        @foreach ($routeWarnings as $warning)
+                            <li>{{ $warning }}</li>
+                        @endforeach
+                    </ul>
+                    <a
+                        href="{{ \App\Filament\Resources\RouteResource::getUrl('index') }}"
+                        style="display:inline-block;margin-top:.5rem;font-weight:600;color:#b45309;text-decoration:underline"
+                    >
+                        {{ __('admin.routes') }}
+                    </a>
+                </div>
             </div>
         @endif
         <div style="overflow-x:auto">

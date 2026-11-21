@@ -23,6 +23,12 @@ class ParentResource extends AdminResource
 
     protected const LABEL = 'parents';
 
+    protected const GROUP = 'nav_people';
+
+    protected const ICON = 'users';
+
+    protected const SORT = 2;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder

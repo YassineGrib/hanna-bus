@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Auth\Access\Response;
@@ -19,6 +20,29 @@ abstract class AdminResource extends Resource
     protected const LABEL = '';
 
     protected const READ_ONLY = false;
+
+    /** Translation key (under `admin.`) of the sidebar group; empty means no group. */
+    protected const GROUP = '';
+
+    /** Heroicon outlined name without the `o-` prefix, for example `truck`. */
+    protected const ICON = '';
+
+    protected const SORT = 0;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return static::GROUP === '' ? null : __('admin.'.static::GROUP);
+    }
+
+    public static function getNavigationIcon(): ?Heroicon
+    {
+        return static::ICON === '' ? null : Heroicon::from('o-'.static::ICON);
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return static::SORT;
+    }
 
     /** Singular label (for titles such as "Create Bus"); falls back to the plural when no `_one` key exists. */
     public static function getModelLabel(): string

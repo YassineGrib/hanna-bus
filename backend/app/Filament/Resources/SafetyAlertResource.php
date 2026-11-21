@@ -20,6 +20,12 @@ class SafetyAlertResource extends AdminResource
 
     protected const LABEL = 'safety_alerts';
 
+    protected const GROUP = 'nav_operations';
+
+    protected const ICON = 'exclamation-triangle';
+
+    protected const SORT = 4;
+
     protected const READ_ONLY = true;
 
     public static function getEloquentQuery(): Builder

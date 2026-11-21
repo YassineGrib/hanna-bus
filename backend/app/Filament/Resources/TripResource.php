@@ -23,6 +23,12 @@ class TripResource extends AdminResource
 
     protected const LABEL = 'trips';
 
+    protected const GROUP = 'nav_operations';
+
+    protected const ICON = 'map';
+
+    protected const SORT = 3;
+
     protected const READ_ONLY = true;
 
     public static function getEloquentQuery(): Builder

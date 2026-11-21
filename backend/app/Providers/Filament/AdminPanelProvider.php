@@ -9,13 +9,16 @@ use App\Filament\Widgets\OpenAlerts;
 use App\Filament\Widgets\TodaysTrips;
 use App\Http\Middleware\AdminLocale;
 use Filament\Actions\Action;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -28,7 +31,15 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel->default()->id('admin')->path('admin')->login()->brandName('Hanna Bus Admin')
-            ->brandLogo(asset('images/hanna-bus-logo.png'))->brandLogoHeight('3rem')->colors(['primary' => Color::hex('#D4A017')])->darkMode()
+            ->brandLogo(asset('images/hanna-bus-logo.png'))->brandLogoHeight('3rem')->colors(['primary' => Color::hex('#D4A017')])->darkMode()->defaultThemeMode(ThemeMode::Light)
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                NavigationGroup::make()->label(fn (): string => __('admin.nav_operations')),
+                NavigationGroup::make()->label(fn (): string => __('admin.nav_fleet')),
+                NavigationGroup::make()->label(fn (): string => __('admin.nav_people')),
+                NavigationGroup::make()->label(fn (): string => __('admin.nav_communication')),
+            ])
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): string => view('filament.background')->render())
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->pages([Dashboard::class, DailyPlanning::class])
             ->widgets([FleetStats::class, TodaysTrips::class, OpenAlerts::class])

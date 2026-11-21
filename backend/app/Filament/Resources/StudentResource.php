@@ -27,6 +27,12 @@ class StudentResource extends AdminResource
 
     protected const LABEL = 'students';
 
+    protected const GROUP = 'nav_people';
+
+    protected const ICON = 'academic-cap';
+
+    protected const SORT = 1;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder

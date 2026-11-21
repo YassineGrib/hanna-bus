@@ -25,6 +25,12 @@ class BusResource extends AdminResource
 
     protected const LABEL = 'buses';
 
+    protected const GROUP = 'nav_fleet';
+
+    protected const ICON = 'truck';
+
+    protected const SORT = 1;
+
     protected const READ_ONLY = false;
 
     public static function getEloquentQuery(): Builder
