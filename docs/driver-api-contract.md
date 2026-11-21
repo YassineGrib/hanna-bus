@@ -102,3 +102,29 @@ All under `/api/v1/driver`, role `driver`, except login.
 
 - `php artisan test` is green, the 14 existing tests untouched, new feature tests for every endpoint above (happy path, 401, 403 wrong role, the 409 and 422 rules).
 - Parent demo flows keep working. A driver token gets `403` on `/parent/*` and a parent token gets `403` on `/driver/*`.
+
+## 8. Round 2 additions (hardening and phase 2 of the driver app)
+
+Everything above is implemented. This section adds the remaining pieces. Existing endpoints keep their shape unless stated.
+
+### 8.1 Hardening
+- Trip state guards. `arrive`, `delay`, `boarding` and `end` require the trip to be `en_route`: otherwise `409 {"message": ...}`. Exception: `end` on an already `completed` trip stays an idempotent `200`. `students` and `today` have no state guard.
+- Data minimisation. No driver endpoint returns a full `Child` model. A driver-facing child object contains only: `id`, `name`, `student_code`, `grade`, `stop_name`, `stop_time`, `bus_number`, `seat_number`, `transit_status`, `avatar_preset`, `dismissal_rule`, `absent`. Never `national_id`, `insurance_number`, `birth_date` or the pediatrician fields. `POST /driver/trips/{trip}/boarding` returns that object too.
+- Login throttle: `POST /driver/auth/login` and the parent login are limited to 5 attempts per minute per email and IP (`429`).
+- The existing `POST /auth/forgot-password`, `/auth/verify-otp` and `/auth/reset-password` must work for driver accounts as well as parents. Add tests for a driver.
+
+### 8.2 New driver endpoints (role `driver`)
+- `GET /driver/students/{child}` -> dossier for a child on one of the driver's buses (404 otherwise): `{student: <driver-facing child object>, transit: {bus_number, seat_number, stop_name, stop_time, return_time, dismissal_rule}, medical: {blood_type, allergies, chronic_conditions, first_aid_protocol}, guardian: {name, phone, backup_phone}}`.
+- `PUT /driver/profile` `{name?, phone?, locale?: en|ar}` -> updated profile.
+- `GET /driver/settings` and `PUT /driver/settings`. Stored as JSON on `driver_profiles.settings_json`. Known keys, all optional on PUT, unknown keys rejected with 422: `voice_guidance` (bool), `speed_chime` (bool), `glare_mode` (`auto|day|night`), `radar_radius_m` (int 100 to 1000), `scan_mode` (`camera|bluetooth`), `scan_chime` (bool), `biometric_unlock` (bool), `quick_pin_enabled` (bool), `privacy_lock_minutes` (int 1 to 30), `theme_palette` (`mustard|teal-gray|ocean-blue`), `brightness_mode` (`light|dark|auto`). GET returns all keys with defaults filled in.
+- `GET /driver/contacts` -> `{emergency: [{key: civil_protection, label, phone: "14"}, {key: police, label, phone: "17"}], school: {name, phone}, coordinator: {name, phone}}`. Values from a new `config/hanna.php` (env `HANNA_SCHOOL_NAME`, `HANNA_SCHOOL_PHONE`, `HANNA_COORDINATOR_NAME`, `HANNA_COORDINATOR_PHONE`, with demo defaults). `GET /driver/profile` also returns `school` and `coordinator` with the same shape.
+- `GET /driver/telemetry/today` -> `{max_speed_kmh, avg_speed_kmh, speeding_events, distance_km, driving_minutes, trips}` computed from today's `trip_location_points` and trips. A speeding event is a point above 60 km/h. Zeroes when there is no data.
+- `GET /driver/buses/{bus}` -> vehicle passport: `{id, number, line_name, plate_number, vehicle_model, capacity, status, insurance_expires_on, technical_control_expires_on, last_service_on, last_inspection: {date, passed}|null}`. Add the three nullable date columns to `buses` and seed them.
+
+### 8.3 Parent side
+- `GET /parent/support/messages` already exists. Add `PUT /parent/support/messages/{id}/read` (only the parent's own, marks `read_at`).
+- A parent with no children gets `404 {"message": ...}` from `/parent/tracking/active-trip`. The parent app must show an empty state, not an error.
+
+### 8.4 Done means (round 2)
+- `php artisan test` green, all earlier tests still passing, new tests for every item in 8.1 to 8.3.
+- The Flutter driver app (`hanna_bus_driver/`) calls every endpoint in 8.2.
