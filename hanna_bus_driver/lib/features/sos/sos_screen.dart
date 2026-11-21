@@ -110,7 +110,7 @@ class _SosScreenState extends State<SosScreen> with WidgetsBindingObserver {
             runSpacing: 10,
             children: [
               for (var i = 0; i < 4; i++)
-                ChoiceChip(
+                HannaChoiceChip(
                   label: Text(types[i][0].toString()),
                   selected:
                       type ==

@@ -1,3 +1,4 @@
+import 'package:hanna_bus_driver/core/widgets/driver_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hanna_bus_driver/features/students/students_screen.dart';
@@ -11,10 +12,10 @@ void main() {
     addTearDown(state.dispose);
     await tester.pumpWidget(host(state, StudentsScreen(state: state)));
     await tester.pumpAndSettle();
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'Absent'));
+    await tapVisible(tester, find.widgetWithText(HannaChoiceChip, 'Absent'));
     expect(find.text('Lina Hadj'), findsOneWidget);
     expect(find.text('Youssef Mansouri'), findsNothing);
-    await tapVisible(tester, find.widgetWithText(ChoiceChip, 'All'));
+    await tapVisible(tester, find.widgetWithText(HannaChoiceChip, 'All'));
     await tester.enterText(find.byType(TextField), 'Youssef');
     await tester.pumpAndSettle();
     expect(find.text('Lina Hadj'), findsNothing);

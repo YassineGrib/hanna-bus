@@ -88,7 +88,7 @@ class _DossierScreenState extends State<DossierScreen> {
             spacing: 8,
             children: [
               for (final item in ['transit', 'medical', 'guardian'])
-                ChoiceChip(
+                HannaChoiceChip(
                   key: Key('dossier-$item'),
                   label: Text(
                     s.design(

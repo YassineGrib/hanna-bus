@@ -6,9 +6,11 @@ class DriverRepository {
   DriverRepository({DriverApiClient? api}) : api = api ?? DriverApiClient();
   final DriverApiClient api;
   DemoSeed? _demo;
+  bool serverUnreachable = false;
   bool get isDemo => _demo != null;
   Future<void> login(String email, String password) async {
     _demo = null;
+    serverUnreachable = false;
     api.token = null;
     try {
       final result = await api.request('POST', '/driver/auth/login', {
@@ -18,6 +20,7 @@ class DriverRepository {
       if (result['user']['role'] != 'driver') throw const ApiFailure(403);
       api.token = result['token'];
     } on ApiUnreachable {
+      serverUnreachable = true;
       if (email.trim().toLowerCase() != 'ahmed.benali@mail.dz' ||
           password != 'Password123!') {
         throw const ApiFailure(401);

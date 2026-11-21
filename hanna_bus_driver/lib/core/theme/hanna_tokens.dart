@@ -403,7 +403,12 @@ abstract final class HannaTheme {
         checkmarkColor: t.onPrimary,
         side: BorderSide(color: t.border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        labelStyle: textTheme.bodyMedium?.copyWith(color: t.text),
+        labelStyle: textTheme.bodyMedium?.copyWith(
+          color: WidgetStateColor.resolveWith(
+            (states) =>
+                states.contains(WidgetState.selected) ? t.onPrimary : t.text,
+          ),
+        ),
         secondaryLabelStyle: textTheme.bodyMedium?.copyWith(color: t.onPrimary),
       ),
       inputDecorationTheme: InputDecorationTheme(

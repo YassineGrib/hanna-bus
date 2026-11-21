@@ -77,7 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               runSpacing: 6,
               children: [
                 for (var i = 0; i < options.length; i++)
-                  ChoiceChip(
+                  HannaChoiceChip(
                     label: Text(labels?[i] ?? s.t(options[i])),
                     selected: values[key] == options[i],
                     onSelected: state.busy
@@ -180,7 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               spacing: 8,
               children: [
                 for (final language in ['en', 'ar'])
-                  ChoiceChip(
+                  HannaChoiceChip(
                     key: Key('language-$language'),
                     label: Text(d('l_$language')),
                     selected: state.locale.languageCode == language,

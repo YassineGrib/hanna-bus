@@ -7,6 +7,71 @@ import '../theme/hanna_typography.dart';
 import 'hanna_background.dart';
 import 'hanna_icon.dart';
 
+/// A choice chip drawn by us instead of Material's ChoiceChip. Material washes out the
+/// label of a disabled chip (seen on the emulator: the running route was barely readable),
+/// and a disabled chip here is still information. Colours are explicit: on-primary text on
+/// the primary fill when selected, text on the surface otherwise, muted text when locked.
+class HannaChoiceChip extends StatelessWidget {
+  const HannaChoiceChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    this.onSelected,
+  });
+
+  final Widget label;
+  final bool selected;
+  final ValueChanged<bool>? onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = HannaTokens.of(context);
+    final enabled = onSelected != null;
+    // A disabled chip is still information (for example the route that is running), so
+    // its label keeps full contrast: on-primary when selected, muted text otherwise.
+    final color = selected ? t.onPrimary : (enabled ? t.text : t.textMuted);
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+      side: BorderSide(color: selected ? t.actionPrimary : t.border),
+    );
+    return Semantics(
+      button: true,
+      selected: selected,
+      enabled: enabled,
+      child: Material(
+        color: selected ? t.actionPrimary : t.surface,
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: enabled ? () => onSelected!(!selected) : null,
+          customBorder: shape,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 40),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (selected) ...[
+                    Icon(Icons.check, size: 16, color: t.onPrimary),
+                    const SizedBox(width: 6),
+                  ],
+                  Flexible(
+                    child: DefaultTextStyle.merge(
+                      style: TextStyle(color: color, fontWeight: FontWeight.w600),
+                      child: label,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class DriverButton extends StatelessWidget {
   const DriverButton(
     this.label, {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/l10n/app_strings.dart';
 import '../../core/state/app_state.dart';
@@ -120,7 +121,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ? null
                 : () => state.login(email.text, password.text),
           ),
-          Text(s.t('demoHelp'), style: Theme.of(context).textTheme.bodySmall),
+          if (kDebugMode && state.repository.serverUnreachable)
+            Text(s.t('demoHelp'), style: Theme.of(context).textTheme.bodySmall),
         ],
       ],
     );

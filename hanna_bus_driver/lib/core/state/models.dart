@@ -1,4 +1,14 @@
+import 'package:latlong2/latlong.dart';
+
 typedef Json = Map<String, dynamic>;
+
+bool validCoordinates(double? lat, double? lng) =>
+    lat != null &&
+    lng != null &&
+    lat.isFinite &&
+    lng.isFinite &&
+    lat.abs() <= 90 &&
+    lng.abs() <= 180;
 
 String label(dynamic value, String language) {
   if (value is Map) return (value[language] ?? value['en'] ?? '').toString();
@@ -70,7 +80,8 @@ class DriverTrip {
       route = other.route,
       busNumber = other.busNumber,
       scheduledStart = other.scheduledStart,
-      stations = other.stations;
+      stations = other.stations,
+      routePoints = other.routePoints;
   DriverTrip.fromJson(Json j)
     : id = '${j['id']}',
       period = '${j['period']}',
@@ -78,6 +89,23 @@ class DriverTrip {
       busNumber = '${j['bus_number'] ?? ''}',
       status = '${j['status']}',
       scheduledStart = '${j['scheduled_start'] ?? ''}',
+      routePoints = List.unmodifiable(
+        (j['route_points'] as List? ?? [])
+            .whereType<List>()
+            .where(
+              (p) =>
+                  p.length == 2 &&
+                  p[0] is num &&
+                  p[1] is num &&
+                  validCoordinates(
+                    (p[0] as num).toDouble(),
+                    (p[1] as num).toDouble(),
+                  ),
+            )
+            .map(
+              (p) => LatLng((p[0] as num).toDouble(), (p[1] as num).toDouble()),
+            ),
+      ),
       stations = List.unmodifiable(
         (j['stations'] as List? ?? []).map(
           (s) => Station.fromJson(Map<String, dynamic>.from(s)),
@@ -86,6 +114,7 @@ class DriverTrip {
   final String id, period, busNumber, status, scheduledStart;
   final dynamic route;
   final List<Station> stations;
+  final List<LatLng> routePoints;
   bool get active => status == 'en_route';
 }
 

@@ -29,6 +29,64 @@ double _contrastRatio(Color a, Color b) {
 void main() {
   HannaTypography.useGoogleFonts = false;
 
+  for (final palette in HannaPalette.values) {
+    for (final brightness in Brightness.values) {
+      testWidgets(
+        '${palette.name} ${brightness.name} selected chip labels contrast on primary',
+        (tester) async {
+          final theme = HannaTheme.build(
+            palette: palette,
+            brightness: brightness,
+            locale: const Locale('en'),
+          );
+          final tokens = theme.extension<HannaTokens>()!;
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: theme,
+              home: Scaffold(
+                body: Wrap(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Morning Route'),
+                      selected: true,
+                      onSelected: (_) {},
+                    ),
+                    FilterChip(
+                      label: const Text('Selected filter'),
+                      selected: true,
+                      onSelected: (_) {},
+                    ),
+                    ChoiceChip(
+                      label: const Text('Upcoming route'),
+                      selected: false,
+                      onSelected: (_) {},
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+          for (final label in ['Morning Route', 'Selected filter']) {
+            final element = tester.element(find.text(label));
+            final color = DefaultTextStyle.of(element).style.color!;
+            expect(color, tokens.onPrimary);
+            expect(
+              _contrastRatio(color, tokens.actionPrimary),
+              greaterThanOrEqualTo(4.5),
+            );
+          }
+          expect(
+            DefaultTextStyle.of(
+              tester.element(find.text('Upcoming route')),
+            ).style.color,
+            tokens.text,
+          );
+          expect(theme.chipTheme.selectedColor, tokens.actionPrimary);
+        },
+      );
+    }
+  }
+
   group('HannaTokens 120-pair WCAG AA contrast audit', () {
     for (final palette in HannaPalette.values) {
       for (final brightness in Brightness.values) {

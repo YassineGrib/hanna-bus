@@ -178,10 +178,17 @@ class AppStrings {
     'refresh': ['Refresh trip data', 'تحديث بيانات الرحلة'],
     'routeOverview': ['Route overview', 'نظرة عامة على المسار'],
     'routeHint': [
-      'Select a stop to confirm arrival. The diagram shows assigned stations.',
-      'اختر محطة لتأكيد الوصول. يوضح المخطط المحطات المسندة.',
+      'Select a stop to confirm arrival. The map shows the assigned route.',
+      'اختر محطة لتأكيد الوصول. تعرض الخريطة المسار المسند.',
     ],
     'current': ['Current stop', 'المحطة الحالية'],
+    'stopCompleted': ['Stop completed', 'اكتملت المحطة'],
+    'mapUnavailable': [
+      'Map coordinates unavailable. Showing stop diagram.',
+      'إحداثيات الخريطة غير متاحة. يظهر مخطط المحطات.',
+    ],
+    'recenterMap': ['Recenter map', 'توسيط الخريطة'],
+    'driverPosition': ['Your location', 'موقعك'],
     'upcoming': ['Upcoming', 'قادمة'],
     'scanHint': [
       'Scan a student QR pass or enter their code',

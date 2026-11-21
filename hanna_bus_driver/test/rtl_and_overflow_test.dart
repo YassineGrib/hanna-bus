@@ -1,3 +1,5 @@
+import 'package:hanna_bus_driver/features/navigation/navigation_screen.dart';
+import 'package:hanna_bus_driver/core/widgets/driver_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hanna_bus_driver/features/auth/auth_screens.dart';
@@ -34,6 +36,7 @@ void main() {
                   .seed
                   .savedSettings['brightness_mode'] =
               brightness.name;
+          (state.repository as FakeRepository).serverUnreachable = true;
           addTearDown(state.dispose);
           final pages = <Widget>[
             MessagesScreen(state: state),
@@ -60,6 +63,11 @@ void main() {
               SettingsScreen(state: state, section: section),
             for (var step = 0; step < 3; step++)
               RecoveryScreen(state: state, initialStep: step),
+            DriverPage(
+              state: state,
+              title: AppStrings(language).t('routeOverview'),
+              children: [NavigationContent(state: state)],
+            ),
             AuthScreen(state: state),
             HomeShell(state: state),
             StudentsScreen(state: state),

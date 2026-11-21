@@ -79,7 +79,7 @@ class _StudentsContentState extends State<StudentsContent> {
             spacing: 8,
             children: [
               for (final f in ['all', 'on_bus', 'waiting', 'absent'])
-                ChoiceChip(
+                HannaChoiceChip(
                   label: Text(s.t(f)),
                   selected: filter == f,
                   onSelected: (_) => setState(() => filter = f),

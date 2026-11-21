@@ -172,7 +172,7 @@ class _DelaySheetState extends State<DelaySheet> {
               spacing: 12,
               children: [
                 for (final n in [5, 10, 15, 30])
-                  ChoiceChip(
+                  HannaChoiceChip(
                     label: Text('$n ${s.t('minutes')}'),
                     selected: minutes == n,
                     onSelected: (_) => setState(() => minutes = n),
@@ -183,7 +183,7 @@ class _DelaySheetState extends State<DelaySheet> {
               spacing: 10,
               children: [
                 for (final r in ['traffic', 'breakdown', 'weather', 'other'])
-                  ChoiceChip(
+                  HannaChoiceChip(
                     label: Text(s.t(r)),
                     selected: reason == r,
                     onSelected: (_) => setState(() => reason = r),

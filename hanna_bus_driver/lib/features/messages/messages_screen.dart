@@ -42,7 +42,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             spacing: 8,
             children: [
               for (final f in ['all', 'unread', 'urgent'])
-                ChoiceChip(
+                HannaChoiceChip(
                   label: Text(
                     '${s.t(f)} ${widget.state.inbox.where((i) => f == 'all' || f == 'unread' && (i['unread_count'] as num) > 0 || f == 'urgent' && i['is_urgent'] == true).length}',
                   ),

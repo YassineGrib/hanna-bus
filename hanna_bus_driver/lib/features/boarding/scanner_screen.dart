@@ -83,7 +83,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             spacing: 12,
             children: [
               for (final mode in ['boarded', 'alighted'])
-                ChoiceChip(
+                HannaChoiceChip(
                   label: Text(s.t(mode)),
                   selected: type == mode,
                   onSelected: processing

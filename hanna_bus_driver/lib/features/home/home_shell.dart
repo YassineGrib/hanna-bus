@@ -155,7 +155,7 @@ List<Widget> missionWidgets(BuildContext context, DriverState state) {
         spacing: 8,
         children: [
           for (final route in state.trips)
-            ChoiceChip(
+            HannaChoiceChip(
               key: Key('trip-${route.id}'),
               label: Text(
                 s.design(
@@ -438,7 +438,14 @@ class StationCard extends StatelessWidget {
                     Text(
                       '${station.time} · ${station.students.length} ${s.design('home', 'nav_roster')}',
                     ),
-                    Text(s.t(station.status), style: TextStyle(color: t.link)),
+                    Text(
+                      s.t(
+                        station.status == 'completed'
+                            ? 'stopCompleted'
+                            : station.status,
+                      ),
+                      style: TextStyle(color: t.link),
+                    ),
                   ],
                 ),
               ),

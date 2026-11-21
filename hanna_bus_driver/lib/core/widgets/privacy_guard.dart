@@ -18,9 +18,12 @@ class PrivacyGuard extends StatefulWidget {
 class _PrivacyGuardState extends State<PrivacyGuard>
     with WidgetsBindingObserver {
   Timer? timer;
+  DateTime? idleDeadline;
   bool covered = false;
   int? minutes;
   bool signedIn = false;
+  bool permissionPending = false;
+  AppLifecycleState lifecycle = AppLifecycleState.resumed;
   @override
   void initState() {
     super.initState();
@@ -32,17 +35,31 @@ class _PrivacyGuardState extends State<PrivacyGuard>
   void sync() {
     final next =
         (widget.state.settings['privacy_lock_minutes'] as num?)?.toInt() ?? 5;
-    if (minutes == next && signedIn == widget.state.authenticated) return;
+    final permission = widget.state.requestingPermission;
+    final resetIdle = minutes != next || signedIn != widget.state.authenticated;
+    if (minutes == next &&
+        signedIn == widget.state.authenticated &&
+        permissionPending == permission) {
+      return;
+    }
+    permissionPending = permission;
     minutes = next;
     signedIn = widget.state.authenticated;
     if (!signedIn) covered = false;
-    arm();
+    arm(resetIdle: resetIdle);
   }
 
-  void arm() {
+  void arm({bool resetIdle = true}) {
     timer?.cancel();
-    if (signedIn && !covered) {
-      timer = Timer(Duration(minutes: minutes!), () {
+    if (resetIdle || idleDeadline == null) {
+      idleDeadline = DateTime.now().add(Duration(minutes: minutes!));
+    }
+    if (signedIn &&
+        !covered &&
+        !permissionPending &&
+        lifecycle == AppLifecycleState.resumed) {
+      final remaining = idleDeadline!.difference(DateTime.now());
+      timer = Timer(remaining.isNegative ? Duration.zero : remaining, () {
         if (mounted) setState(() => covered = true);
       });
     }
@@ -50,9 +67,16 @@ class _PrivacyGuardState extends State<PrivacyGuard>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed && signedIn) {
+    lifecycle = state;
+    timer?.cancel();
+    if ((state == AppLifecycleState.paused ||
+            state == AppLifecycleState.hidden) &&
+        signedIn &&
+        !permissionPending) {
       timer?.cancel();
       setState(() => covered = true);
+    } else if (state == AppLifecycleState.resumed) {
+      arm();
     }
   }
 

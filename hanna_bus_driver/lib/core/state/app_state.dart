@@ -40,6 +40,8 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _locationTimer;
   bool _sendingLocation = false, _disposed = false, _foreground = true;
   DriverPosition? lastPosition;
+  bool requestingPermission = false;
+  int _locationFailures = 0;
   List<DriverBus> get buses => List.unmodifiable(_buses);
   List<DriverTrip> get trips => List.unmodifiable(_trips);
   List<Student> get students => List.unmodifiable(_students);
@@ -290,6 +292,8 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
   Future<bool> logout() => run(() async {
     await repository.logout();
     authenticated = false;
+    locationIssue = null;
+    _locationFailures = 0;
     _locationTimer?.cancel();
     _trips = [];
     _students = [];
@@ -324,7 +328,16 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
     _sendingLocation = true;
     final tripId = trip!.id;
     try {
-      final p = await location.current(requestPermission: requestPermission);
+      // Accuracy dialogs can appear during position acquisition on Android.
+      requestingPermission = true;
+      _notify();
+      late final DriverPosition p;
+      try {
+        p = await location.current(requestPermission: requestPermission);
+      } finally {
+        requestingPermission = false;
+        _notify();
+      }
       if (_disposed ||
           trip?.id != tripId ||
           trip?.active != true ||
@@ -338,15 +351,28 @@ class DriverState extends ChangeNotifier with WidgetsBindingObserver {
         'speed_kmh': p.speedKmh,
         'heading': p.heading,
       });
+      if (_disposed ||
+          trip?.id != tripId ||
+          trip?.active != true ||
+          !authenticated) {
+        return;
+      }
       lastPosition = p;
+      _locationFailures = 0;
+      locationIssue = null;
+      _notify();
       if (settings['speed_chime'] == true && p.speedKmh > 60) {
         unawaited(SystemSound.play(SystemSoundType.alert));
       }
-      if (locationIssue != null) {
-        locationIssue = null;
-        _notify();
-      }
     } catch (e) {
+      if (_disposed ||
+          trip?.id != tripId ||
+          trip?.active != true ||
+          !authenticated) {
+        return;
+      }
+      _locationFailures++;
+      if (e is! LocationUnavailable && _locationFailures < 2) return;
       final issue = e is LocationUnavailable
           ? 'locationDenied'
           : 'locationFailed';

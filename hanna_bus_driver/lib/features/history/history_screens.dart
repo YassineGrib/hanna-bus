@@ -33,7 +33,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 spacing: 8,
                 children: [
                   for (final p in ['week', 'month', 'all'])
-                    ChoiceChip(
+                    HannaChoiceChip(
                       label: Text(s.t(p)),
                       selected: p == period,
                       onSelected: (_) => setState(() => period = p),
