@@ -28,6 +28,10 @@ class AppStateController extends ChangeNotifier {
   HannaPalette _palette = HannaPalette.mustard;
   Brightness _brightness = Brightness.light;
   Locale _locale = const Locale('en');
+
+  /// True once the person picked a language on this device (or one was synced
+  /// before). An explicit choice must survive signing in.
+  bool _localeIsExplicit = false;
   bool _onboardingComplete = false;
   bool _isAuthenticated = false;
   bool _isOfflineDemoMode = false;
@@ -101,6 +105,7 @@ class AppStateController extends ChangeNotifier {
     final bStr = prefs.getString(_kBrightnessKey);
     _brightness = bStr == 'dark' ? Brightness.dark : Brightness.light;
     final lStr = prefs.getString(_kLocaleKey) ?? 'en';
+    _localeIsExplicit = prefs.containsKey(_kLocaleKey);
     _locale = Locale(['en', 'ar', 'fr'].contains(lStr) ? lStr : 'en');
     api.localeCode = _locale.languageCode;
     _onboardingComplete = prefs.getBool(_kOnboardingKey) ?? false;
@@ -161,6 +166,7 @@ class AppStateController extends ChangeNotifier {
 
   Future<void> setLocale(Locale next) async {
     _locale = next;
+    _localeIsExplicit = true;
     api.localeCode = next.languageCode;
     _user = _user?.copyWith(locale: next);
     final prefs = await SharedPreferences.getInstance();
@@ -349,8 +355,19 @@ class AppStateController extends ChangeNotifier {
   Future<void> _syncUserPreferencesFromServer(ParentUser u) async {
     _palette = u.palette;
     _brightness = u.brightness;
-    _locale = u.locale;
-    api.localeCode = u.locale.languageCode;
+    if (_localeIsExplicit && u.locale != _locale) {
+      // The language chosen on this device wins over the stored profile; keep the server in step.
+      _user = _user?.copyWith(locale: _locale);
+      try {
+        await api.updatePreferences(locale: _locale.languageCode);
+      } catch (_) {
+        // Not critical: the next language change syncs it again.
+      }
+    } else {
+      _locale = u.locale;
+      _localeIsExplicit = true;
+    }
+    api.localeCode = _locale.languageCode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kPaletteKey, _palette.apiValue);
     await prefs.setString(
