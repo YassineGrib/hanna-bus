@@ -30,6 +30,7 @@ class DriverTripController extends Controller
             return ['id' => $trip->id, 'period' => $trip->is_morning ? 'morning' : 'return',
                 'route_name' => $trip->route_name, 'bus_number' => $trip->bus_number,
                 'status' => $trip->status, 'scheduled_start' => $trip->scheduled_start?->toISOString(),
+                'route_points' => $trip->route_points_json ?? [],
                 'stations' => $trip->stations->map(fn ($s) => [
                     'id' => $s->id, 'sort_order' => $s->sort_order,
                     'name' => Trilingual::pick($lang, $s->name_en, $s->name_ar, $s->name_fr),

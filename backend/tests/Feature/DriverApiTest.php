@@ -163,6 +163,7 @@ class DriverApiTest extends TestCase
         AbsenceReport::create(['parent_id' => $this->parent->id, 'child_id' => $this->child->id, 'absence_date' => today()]);
         $this->asDriver()->getJson('/api/v1/driver/trips/today')->assertOk()->assertJsonCount(1)
             ->assertJsonPath('0.period', 'morning')->assertJsonPath('0.scheduled_start', today()->setTime(7, 5)->toISOString())
+            ->assertJsonPath('0.route_points', $this->trip->route_points_json)
             ->assertJsonPath('0.stations.0.students.0.absent', true);
         $this->getJson('/api/v1/driver/trips/trip-04/students')->assertOk()->assertJsonCount(1)
             ->assertJsonPath('0.boarded_at', null)->assertJsonPath('0.absent', true);
