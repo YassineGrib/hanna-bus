@@ -1,5 +1,7 @@
 # Hanna Bus Admin
 
+<img src="../docs/images/admin-dashboard.png" alt="Admin dashboard" width="100%">
+
 Back office for the Hanna Bus school transport system, built with Filament v5.
 
 - URL: `/admin` (for example http://127.0.0.1:8000/admin after `php artisan serve`)

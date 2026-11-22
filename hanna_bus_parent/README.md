@@ -1,17 +1,24 @@
-# hanna_bus_parent
+# Hanna Bus Parent
 
-A new Flutter project.
+The parent app of [Hanna Bus](../README.md): live bus tracking, QR boarding pass, delay alerts, trip history and messages with the driver. English, Arabic (RTL) and French, three palettes, light and dark mode.
 
-## Getting Started
+<img src="../docs/images/parent-app-en.png" alt="Parent app screens" width="100%">
 
-This project is a starting point for a Flutter application.
+## Run
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter pub get
+flutter run --dart-define=HANNA_API_URL=http://127.0.0.1:8000/api/v1
+flutter analyze && flutter test
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+Use `http://10.0.2.2:8000/api/v1` on the Android emulator. Android application ID: `com.hannabus.hanna_bus_parent`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Release build
+
+```bash
+flutter build apk --release --split-per-abi --target-platform android-arm64 \
+  --dart-define=HANNA_API_URL=https://your-server/api/v1
+```
+
+Signing is read from an untracked `android/key.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`); without it the build uses the debug key.

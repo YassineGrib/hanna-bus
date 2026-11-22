@@ -1,5 +1,9 @@
 # Hanna Bus Driver
 
+Part of [Hanna Bus](../README.md).
+
+<img src="../docs/images/driver-app-en.png" alt="Driver app screens" width="100%">
+
 Driver daily route companion with the full phase 2 screen set. English and Arabic with live RTL, three project palettes, light, dark and system appearance, bundled fonts and Phosphor icons, shared motion tokens and the floating home navigation. Android application ID: `com.hannabus.hanna_bus_driver`.
 
 ## Run
